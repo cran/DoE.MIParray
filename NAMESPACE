@@ -1,0 +1,9 @@
+
+import(stats)
+import(methods)
+import(DoE.base, except=c("lm", "aov", "lm.design", "aov.design", "lm.formula", "aov.formula"))
+S3method(print, oa)   ## strangely enough, I am not asked to document the method
+                      ## which is fine, because it is documented in DoE.base
+
+export("gurobi_MIParray", "mosek_MIParray",
+       "gurobi_MIPcontinue", "mosek_MIPcontinue", "lowerbound_AR")

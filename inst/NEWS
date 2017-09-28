@@ -1,0 +1,66 @@
+Changes to package DoE.MIParray
+
+Version 0.10, September 26 2017
+- single-quoted software names for avoiding "potentially mis-spelled" note
+- added URLs for installation instructions for packages gurobi and Rmosek to the Description file
+- added key words to lowerbound_AR documentation
+
+Version 0.9, September 22 2017
+- sharpened the lower bound for AR for resolution II
+  based on Liu and Lin 2009
+
+Version 0.8, September 04 2017
+- incorporated bound for A_R from Grömping and Xu (2014) Theorem 5
+  into gurobi_MIParray and mosek_MIParray; this allows to avoid potentially
+  lengthy confirmations of optimality, where all R factor projections have weak strength R.
+  Initially, the functions lowerbounds and lowerbound_AR are included here;
+  eventually, they will be moved to package DoE.base.
+- made sure to export a reduced MIPinfo attribute if only an early phase in a multiphase optimization
+  did not achieve optimality (nothing was output for mosek_MIParray and gurobi_MIParray before)
+- changed the order of the list elements in the MIPinfo attribute for gurobi_ functions to match that of
+  mosek_ functions, and placed info element last in MIPinfo also for gurobi
+- switched to Mosek version 8.1.0.23, which implies a change in the presolve option
+- added check for generated integer variables to mosek_MIParray and mosek_MIPcontinue
+  (through utility mosek_modelAddConeQobj),
+  since starting values for integer variables (even derived ones from presolve) need to be integer;
+  this improves the situation, but does not cover all situations for which implicit integers
+  cause trouble --> wait for Mosek version 9 to hopefully resolve the problem
+- made the MIPcontinue functions use upper bounds from previous runs for improve=TRUE cases
+- exported print.oa function from DoE.base
+  (had to define it within DoE.MIParray for that purpose, since DoE.base does not export it)
+- added tests to the inst directory
+- fixed a bug in gurobi_MIParray and mosek_MIParray regarding feasibility checks for resolution I designs
+- fixed a bug in mosek_MIPcontinue
+
+Version 0.7, August 17 2017
+- added option for a start array to gurobi_MIParray
+  and mosek_MIParray
+- added option for forced elements to gurobi_MIParray
+  and mosek_MIParray
+- cleaned up unnecessary defaults from gurobi.params
+  and mosek.params in all functions
+- added overall package documentation file
+- combined documentation of gurobi_MIParray and mosek_MIParray
+  into one file
+
+Version 0.6, August 15 2017
+- added NEWS file
+- MIQCPMethod gets default 0
+- MIPFocus added as a parameter with default 1 for gurobi_MIParray
+  and default 0 for gurobi_MIPcontinue
+- heurist and MIPFocus are deactivated for initial linear problem
+  in gurobi_MIParray
+- store time used for initial linear problem in the info attribute
+
+Version 0.5
+- moved functions oa_feasible and print.oa to package DoE.base
+- checking feasibility with that function
+- MIQCPMethod had default -1
+- only heurist was deactivated for initial linear problem
+  in gurobi_MIParray
+
+Version 0.4.0
+- checking feasibility with function oa_feasible
+- fixed a bug which implied that setting MIQCPMethod
+  did not work in case of also setting gurobi.params
+

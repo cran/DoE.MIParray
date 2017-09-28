@@ -1,0 +1,1022 @@
+
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(DoE.MIParray)
+Loading required package: DoE.MIParray
+> nruns <- 12
+> nlev <- c(2,2,3,2,2)
+> 
+> ### this file tests that all combinations of situations work properly
+> ### the settings should be such that the printed output does not depend on random inputs / computer speed etc.
+> ###     to a reasonable extent
+> 
+> ## mosek with resolution > 2 and kmax=resolution
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
++   aus <- mosek_MIParray(nruns,nlev, resolution=3, kmax=3,maxtime=100,
++                       mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                       MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                       INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++   MIPinfo <- attr(aus, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]) ## stable output
++   }
++ }
+Loading required package: Rmosek
+Loading required package: Matrix
+no violation of necessary criteria  for strength  2  was found
+Acquiring MOSEK environment
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=======================================
+[1] 3
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to2                A3 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 256
+
+$objbound
+[1] 256
+
+> 
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
++     ## mosek with resolution = 1 and kmax>resolution
++   aus <- mosek_MIParray(nruns,nlev, resolution=1, kmax=2,maxtime=100,
++                       mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                       MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                       INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++    MIPinfo <- attr(aus, "MIPinfo")
++    print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++   }
++ }
+Acquiring MOSEK environment
+=== GWLP after minimizing A1 ==========
+    0     1     2     3     4     5 
+1.000 0.000 1.056 1.167 0.389 0.389 
+=======================================
+[1] 2
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 2
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+               A1                A2 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 0
+
+$objbound
+[1] 0
+
+> 
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
++     ## mosek with several steps of optimization also of non-zero A-values
++     aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=5,maxtime=100,
++                           mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                           MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                           INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++     MIPinfo <- attr(aus, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++   }}
+no violation of necessary criteria  for strength  1  was found
+Acquiring MOSEK environment
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 1.111 0.944 0.889 0.056 
+=======================================
+[1] 2
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 3
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 4
+=== GWLP after optimizing A4 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 5
+=== GWLP after optimizing A5 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+Releasing MOSEK environment
+NULL
+> 
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
++     ## mosek with resolution = 2 and kmax>resolution
++     aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=3,maxtime=100,
++                       mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                       MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                       INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++    MIPinfo <- attr(aus, "MIPinfo")
++    print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++ 
++    ## improve mosek solution with mosek
++    ## must produce an error, because already optimal
++    print(try(aus2 <- mosek_MIPcontinue(aus, improve=TRUE,
++                       mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                      MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                      INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))))
++ ## optimize next A-value with mosek
++ aus2 <- mosek_MIPcontinue(aus, improve=FALSE,
++                           mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                           MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                           INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++ MIPinfo <- attr(aus2, "MIPinfo")
++ print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++ 
++   if (require(gurobi)){
++     ## improve mosek solution with gurobi
++     ## must produce an error, because already optimal
++     print(try(aus2 <- gurobi_MIPcontinue(aus, improve=TRUE, gurobi.params = list(OutputFlag=0))))
++ 
++     ## optimize next A-value with gurobi
++     aus2 <- gurobi_MIPcontinue(aus, improve=FALSE, gurobi.params = list(OutputFlag=0))
++     MIPinfo <- attr(aus2, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++   }
++ }
++ }
+no violation of necessary criteria  for strength  1  was found
+Acquiring MOSEK environment
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 1.111 0.944 0.889 0.056 
+=======================================
+[1] 2
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 3
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 256
+
+$objbound
+[1] 256
+
+Error in mosek_MIPcontinue(aus, improve = TRUE, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5,  : 
+  improvement unnecessary, already optimal
+[1] "Error in mosek_MIPcontinue(aus, improve = TRUE, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5,  : \n  improvement unnecessary, already optimal\n"
+attr(,"class")
+[1] "try-error"
+attr(,"condition")
+<simpleError in mosek_MIPcontinue(aus, improve = TRUE, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5,     MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07),     iparam = list(LOG = 0))): improvement unnecessary, already optimal>
+Acquiring MOSEK environment
+=== GWLP after optimizing A4 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3                A4 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 144
+
+$objbound
+[1] 144
+
+Loading required package: gurobi
+Loading required package: slam
+Error in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)) : 
+  improvement unnecessary, already optimal
+[1] "Error in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)) : \n  improvement unnecessary, already optimal\n"
+attr(,"class")
+[1] "try-error"
+attr(,"condition")
+<simpleError in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)): improvement unnecessary, already optimal>
+Academic license - for non-commercial use only
+=== GWLP after minimizing A4===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=======================================
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "mosek"  "mosek"  "mosek"  "gurobi"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3                A4 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL"         "OPTIMAL" 
+
+$objval
+[1] 144
+
+$objbound
+[1] 144
+
+> 
+> if (require(gurobi)){
++   ## gurobi with resolution > 2 and kmax=resolution
++   aus <- gurobi_MIParray(nruns,nlev, resolution=3, kmax=3,maxtime=100, gurobi.params = list(OutputFlag=0))
++   MIPinfo <- attr(aus, "MIPinfo")
++   MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]  ## stable output
++ }
+no violation of necessary criteria  for strength  2  was found
+Academic license - for non-commercial use only
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=======================================
+[1] 3
+Academic license - for non-commercial use only
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 100
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+    A1to2        A3 
+"OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 256
+
+$objbound
+[1] 256
+
+> 
+> ## gurobi with resolution = 1 and kmax>resolution
+> if (require(gurobi)){
++   aus <- gurobi_MIParray(nruns,nlev, resolution=1, kmax=2,maxtime=100,
++                       gurobi.params = list(OutputFlag=0))
++   MIPinfo <- attr(aus, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++ }
+Academic license - for non-commercial use only
+=== GWLP after minimizing A1 ==========
+    0     1     2     3     4     5 
+1.000 0.000 1.833 0.833 0.278 0.056 
+=======================================
+[1] 2
+Academic license - for non-commercial use only
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 2
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 100
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+       A1        A2 
+"OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 0
+
+$objbound
+[1] 0
+
+> 
+> ## gurobi with several steps of optimization also with non-zero A-values
+> if (require(gurobi)){
++   aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=5,maxtime=100,
++                          gurobi.params = list(OutputFlag=0))
++   MIPinfo <- attr(aus, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++ }
+no violation of necessary criteria  for strength  1  was found
+Academic license - for non-commercial use only
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 1.111 1.278 0.556 0.056 
+=======================================
+[1] 2
+Academic license - for non-commercial use only
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 3
+Academic license - for non-commercial use only
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 4
+Academic license - for non-commercial use only
+=== GWLP after optimizing A4 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 5
+Academic license - for non-commercial use only
+=== GWLP after optimizing A5 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+NULL
+> ## gurobi with resolution = 2 and kmax>resolution
+> if (require(gurobi)){
++   aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=3,maxtime=100,
++                        gurobi.params = list(OutputFlag=0))
++   MIPinfo <- attr(aus, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++ 
++   ## improve gurobi solution with gurobi
++   ## must produce an error, because already optimal
++   print(try(aus2 <- gurobi_MIPcontinue(aus, improve=TRUE, gurobi.params = list(OutputFlag=0))))
++ 
++   ## optimize next A-value with gurobi
++   aus2 <- gurobi_MIPcontinue(aus, improve=FALSE, gurobi.params = list(OutputFlag=0))
++   MIPinfo <- attr(aus2, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++ 
++   ## improve gurobi solution with mosek
++   if (require(Rmosek)){
++     if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version() >= "8.1.0.23"){
++       ## must produce an error, because already optimal
++       print(try(aus2 <- mosek_MIPcontinue(aus, improve=TRUE,
++                              mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                              MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                              INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))))
++ 
++       ## optimize next A-value with mosek
++       aus2 <- mosek_MIPcontinue(aus, improve=FALSE,
++                                  mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                  MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                  INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++ 
++       MIPinfo <- attr(aus2, "MIPinfo")
++       print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
++     }
++   }
++ }
+no violation of necessary criteria  for strength  1  was found
+Academic license - for non-commercial use only
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 1.111 1.278 0.556 0.056 
+=======================================
+[1] 2
+Academic license - for non-commercial use only
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+[1] 3
+Academic license - for non-commercial use only
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 100
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+    A1to1        A2        A3 
+"OPTIMAL" "OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 256
+
+$objbound
+[1] 256
+
+Error in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)) : 
+  improvement unnecessary, already optimal
+[1] "Error in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)) : \n  improvement unnecessary, already optimal\n"
+attr(,"class")
+[1] "try-error"
+attr(,"condition")
+<simpleError in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)): improvement unnecessary, already optimal>
+Academic license - for non-commercial use only
+=== GWLP after minimizing A4===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=======================================
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 100
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+    A1to1        A2        A3        A4 
+"OPTIMAL" "OPTIMAL" "OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 144
+
+$objbound
+[1] 144
+
+Error in mosek_MIPcontinue(aus, improve = TRUE, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5,  : 
+  improvement unnecessary, already optimal
+[1] "Error in mosek_MIPcontinue(aus, improve = TRUE, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5,  : \n  improvement unnecessary, already optimal\n"
+attr(,"class")
+[1] "try-error"
+attr(,"condition")
+<simpleError in mosek_MIPcontinue(aus, improve = TRUE, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5,     MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07),     iparam = list(LOG = 0))): improvement unnecessary, already optimal>
+Acquiring MOSEK environment
+=== GWLP after optimizing A4 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.000 1.778 1.000 0.222 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "gurobi" "gurobi" "gurobi" "mosek" 
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 100
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+            A1to1                A2                A3                A4 
+        "OPTIMAL"         "OPTIMAL"         "OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 144
+
+$objbound
+[1] 144
+
+> nruns <- 6
+> nlev <- c(2,2,3,2,2)
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version() >= "8.1.0.23"){
++     aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=3,maxtime=2,
++                       mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                       MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                       INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++     MIPinfo <- attr(aus, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info) %in% c("timelinear", "objbound"))])  ## stable output
++     ## improve mosek solution with mosek
++     aus2 <- mosek_MIPcontinue(aus, mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                            MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                            INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++     MIPinfo <- attr(aus2, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info) %in% c("timelinear", "objbound"))])  ## stable output
++     ## improve mosek solution with gurobi
++     if (require(gurobi)){
++     aus2 <- gurobi_MIPcontinue(aus, improve=TRUE, gurobi.params = list(OutputFlag=0))
++     MIPinfo <- attr(aus2, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info) %in% c("timelinear", "objbound"))])  ## stable output
++   }}
++ }
+no violation of necessary criteria  for strength  1  was found
+Acquiring MOSEK environment
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 2.000 2.889 1.889 0.222 
+=======================================
+[1] 2
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=================================
+[1] 3
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 6
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "PRIMAL_FEASIBLE" 
+
+$objval
+[1] 192
+
+Acquiring MOSEK environment
+=== GWLP after further improving A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 6
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 192
+
+Academic license - for non-commercial use only
+=== GWLP after further improving A3 ==========
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=======================================
+$nruns
+[1] 6
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "mosek"  "mosek"  "gurobi"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL"         "OPTIMAL" 
+
+$objval
+[1] 192
+
+> 
+> if (require(gurobi)){
++     aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=3,maxtime=2,
++                            gurobi.params = list(OutputFlag=0))
++     MIPinfo <- attr(aus, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info) %in% c("timelinear", "objbound"))])  ## stable output
++     ## improve gurobi solution with gurobi
++     aus2 <- gurobi_MIPcontinue(aus, improve=TRUE, gurobi.params = list(OutputFlag=0))
++       MIPinfo <- attr(aus2, "MIPinfo")
++       print(MIPinfo$info[which(!names(MIPinfo$info) %in% c("timelinear", "objbound"))])  ## stable output
++     ## improve gurobi solution with mosek
++       if (require(Rmosek)){
++         if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version() >= "8.1.0.23"){
++           aus2 <- mosek_MIPcontinue(aus, improve=TRUE,
++                               mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                                                               MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                                                               INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++     MIPinfo <- attr(aus2, "MIPinfo")
++     print(MIPinfo$info[which(!names(MIPinfo$info) %in% c("timelinear", "objbound"))])  ## stable output
++         }
++         }
++ }
+no violation of necessary criteria  for strength  1  was found
+Academic license - for non-commercial use only
+=== GWLP after enforcing resolution ===
+    0     1     2     3     4     5 
+1.000 0.000 2.667 2.222 1.222 0.889 
+=======================================
+[1] 2
+Academic license - for non-commercial use only
+=== GWLP after optimizing A2 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=================================
+[1] 3
+Academic license - for non-commercial use only
+=== GWLP after optimizing A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=================================
+$nruns
+[1] 6
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 2
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+       A1to1           A2           A3 
+   "OPTIMAL"    "OPTIMAL" "TIME_LIMIT" 
+
+$objval
+[1] 192
+
+Academic license - for non-commercial use only
+=== GWLP after further improving A3 ==========
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=======================================
+$nruns
+[1] 6
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 2
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+    A1to1        A2        A3 
+"OPTIMAL" "OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 192
+
+Acquiring MOSEK environment
+=== GWLP after further improving A3 ===
+    0     1     2     3     4     5 
+1.000 0.000 0.667 5.333 1.000 0.000 
+=================================
+Releasing MOSEK environment
+$nruns
+[1] 6
+
+$nlev
+[1] 2 2 3 2 2
+
+$last.k
+[1] 3
+
+$optimizer
+[1] "gurobi" "gurobi" "mosek" 
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 2
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+            A1to1                A2                A3 
+        "OPTIMAL"         "OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 192
+
+> 
+> proc.time()
+   user  system elapsed 
+ 143.25    5.88   76.20 

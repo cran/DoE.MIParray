@@ -1,0 +1,408 @@
+
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(DoE.MIParray)
+Loading required package: DoE.MIParray
+> start <- DoE.base::L16.2.8.8.1[,1:5]
+> force <- matrix(as.numeric(as.matrix(DoE.base::undesign(DoE.base::oa.design(L8.2.7)))), nrow=8)
+> 
+> ## using a start value with mosek
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
++   feld <- mosek_MIParray(16, rep(2,5), resolution=4, start=start, maxtime=100,
++                          mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                            MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                            INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++    print(feld)
++    MIPinfo <- attr(feld, "MIPinfo")
++    print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]) ## stable output
++   }}
+Loading required package: Rmosek
+Loading required package: Matrix
+no violation of necessary criteria  for strength  3  was found
+=== GWLP of start array ===
+0 1 2 3 4 5 
+1 0 0 0 1 0 
+=======================================
+[1] 4
+Acquiring MOSEK environment
+=== GWLP after optimizing A4 ===
+0 1 2 3 4 5 
+1 0 0 0 0 1 
+=================================
+Releasing MOSEK environment
+      [,1] [,2] [,3] [,4] [,5]
+ [1,]    1    1    1    1    1
+ [2,]    1    1    1    2    2
+ [3,]    1    1    2    1    2
+ [4,]    1    1    2    2    1
+ [5,]    1    2    1    1    2
+ [6,]    1    2    1    2    1
+ [7,]    1    2    2    1    1
+ [8,]    1    2    2    2    2
+ [9,]    2    1    1    1    2
+[10,]    2    1    1    2    1
+[11,]    2    1    2    1    1
+[12,]    2    1    2    2    2
+[13,]    2    2    1    1    1
+[14,]    2    2    1    2    2
+[15,]    2    2    2    1    2
+[16,]    2    2    2    2    1
+attr(,"class")
+[1] "oa"     "matrix"
+attr(,"origin")
+attr(,"origin")$package
+[1] "DoE.MIParry"
+
+attr(,"origin")$call
+mosek_MIParray(16, rep(2, 5), resolution = 4, start = start, 
+    maxtime = 100, mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5, 
+        MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07), 
+        iparam = list(LOG = 0)))
+
+optimization results:
+               A4 
+"INTEGER_OPTIMAL" 
+
+further attribute(s) (accessible with attr( feld , attrname)):
+[1] "MIPinfo"
+$nruns
+[1] 16
+
+$nlev
+[1] 2 2 2 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+               A4 
+"INTEGER_OPTIMAL" 
+
+$objval
+[1] 0
+
+$objbound
+[1] 0
+
+>   ## counting vector representation of the start value could also be used
+> 
+> DoE.MIParray:::dToCount(start-1)
+ [1] 1 1 0 0 0 0 1 1 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 1 1 0 0 0 0 1 1
+>   ## "-1", because the function requires values starting with 0
+>   ## 32 elements for the full factorial in lexicographic order, 16 ones for the runs
+> 
+> ## using a start value with gurobi
+> if (require(gurobi)){
++   start <- DoE.base::L16.2.8.8.1[,1:5]
++   feld <- gurobi_MIParray(16, rep(2,5), resolution=4, start=start, maxtime=100,
++                          gurobi.params = list(OutputFlag=0))
++   print(feld)
++   MIPinfo <- attr(feld, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]) ## stable output
++ }
+Loading required package: gurobi
+Loading required package: slam
+no violation of necessary criteria  for strength  3  was found
+=== GWLP of start array ===
+0 1 2 3 4 5 
+1 0 0 0 1 0 
+=======================================
+[1] 4
+Academic license - for non-commercial use only
+=== GWLP after optimizing A4 ===
+0 1 2 3 4 5 
+1 0 0 0 0 1 
+=================================
+      [,1] [,2] [,3] [,4] [,5]
+ [1,]    1    1    1    1    1
+ [2,]    1    1    1    2    2
+ [3,]    1    1    2    1    2
+ [4,]    1    1    2    2    1
+ [5,]    1    2    1    1    2
+ [6,]    1    2    1    2    1
+ [7,]    1    2    2    1    1
+ [8,]    1    2    2    2    2
+ [9,]    2    1    1    1    2
+[10,]    2    1    1    2    1
+[11,]    2    1    2    1    1
+[12,]    2    1    2    2    2
+[13,]    2    2    1    1    1
+[14,]    2    2    1    2    2
+[15,]    2    2    2    1    2
+[16,]    2    2    2    2    1
+attr(,"class")
+[1] "oa"     "matrix"
+attr(,"origin")
+attr(,"origin")$package
+[1] "DoE.MIParry"
+
+attr(,"origin")$call
+gurobi_MIParray(16, rep(2, 5), resolution = 4, start = start, 
+    maxtime = 100, gurobi.params = list(OutputFlag = 0))
+
+optimization results:
+       A4 
+"OPTIMAL" 
+
+further attribute(s) (accessible with attr( feld , attrname)):
+[1] "MIPinfo"
+$nruns
+[1] 16
+
+$nlev
+[1] 2 2 2 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$stati
+       A4 
+"OPTIMAL" 
+
+$objval
+[1] 0
+
+$objbound
+[1] 0
+
+> 
+> ## extending an existing array with mosek
+> if (require(Rmosek)){
++   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
++       feld <- mosek_MIParray(16, rep(2,7), resolution=3, kmax=4, forced=force,
++                     mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
++                         MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
++                         INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
++   print(feld)
++   MIPinfo <- attr(feld, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]) ## stable output
++   }
++ }
+no violation of necessary criteria  for strength  2  was found
+Acquiring MOSEK environment
+=== GWLP after enforcing resolution ===
+0 1 2 3 4 5 6 7 
+1 0 0 3 3 0 0 1 
+=======================================
+[1] 3
+=== GWLP after optimizing A3 ===
+0 1 2 3 4 5 6 7 
+1 0 0 0 7 0 0 0 
+=================================
+[1] 4
+=== GWLP after optimizing A4 ===
+0 1 2 3 4 5 6 7 
+1 0 0 0 7 0 0 0 
+=================================
+Releasing MOSEK environment
+      [,1] [,2] [,3] [,4] [,5] [,6] [,7]
+ [1,]    1    1    1    1    1    1    1
+ [2,]    1    1    1    1    2    2    2
+ [3,]    1    1    2    2    1    2    1
+ [4,]    1    1    2    2    2    1    2
+ [5,]    1    2    1    2    1    2    2
+ [6,]    1    2    1    2    2    1    1
+ [7,]    1    2    2    1    1    1    2
+ [8,]    1    2    2    1    2    2    1
+ [9,]    2    1    1    2    1    1    2
+[10,]    2    1    1    2    2    2    1
+[11,]    2    1    2    1    1    2    2
+[12,]    2    1    2    1    2    1    1
+[13,]    2    2    1    1    1    2    1
+[14,]    2    2    1    1    2    1    2
+[15,]    2    2    2    2    1    1    1
+[16,]    2    2    2    2    2    2    2
+attr(,"class")
+[1] "oa"     "matrix"
+attr(,"origin")
+attr(,"origin")$package
+[1] "DoE.MIParry"
+
+attr(,"origin")$call
+mosek_MIParray(16, rep(2, 7), resolution = 3, kmax = 4, forced = force, 
+    mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5, MIO_TOL_ABS_GAP = 0.2, 
+        INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07), 
+        iparam = list(LOG = 0)))
+
+optimization results:
+            A1to2                A3                A4 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+further attribute(s) (accessible with attr( feld , attrname)):
+[1] "MIPinfo"
+$conecur
+[1] TRUE
+
+$nruns
+[1] 16
+
+$nlev
+[1] 2 2 2 2 2 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "mosek"
+
+$stati
+            A1to2                A3                A4 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 1792
+
+$objbound
+[1] 1792
+
+$forced
+       1        2        3        4        5        6        7        8 
+"forced"    "new"    "new" "forced" "forced"    "new"    "new" "forced" 
+       9       10       11       12       13       14       15       16 
+   "new" "forced" "forced"    "new"    "new" "forced" "forced"    "new" 
+
+> 
+> ## extending an existing array with gurobi
+> if (require(gurobi)){
++   feld <- gurobi_MIParray(16, rep(2,7), resolution=3, kmax=4, forced=force,
++                           gurobi.params = list(OutputFlag=0))
++   print(feld)
++   MIPinfo <- attr(feld, "MIPinfo")
++   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]) ## stable output
++ }
+no violation of necessary criteria  for strength  2  was found
+Academic license - for non-commercial use only
+=== GWLP after enforcing resolution ===
+0 1 2 3 4 5 6 7 
+1 0 0 3 3 0 0 1 
+=======================================
+[1] 3
+Academic license - for non-commercial use only
+=== GWLP after optimizing A3 ===
+0 1 2 3 4 5 6 7 
+1 0 0 0 7 0 0 0 
+=================================
+[1] 4
+Academic license - for non-commercial use only
+=== GWLP after optimizing A4 ===
+0 1 2 3 4 5 6 7 
+1 0 0 0 7 0 0 0 
+=================================
+      [,1] [,2] [,3] [,4] [,5] [,6] [,7]
+ [1,]    1    1    1    1    1    1    1
+ [2,]    1    1    1    1    2    2    2
+ [3,]    1    1    2    2    1    2    1
+ [4,]    1    1    2    2    2    1    2
+ [5,]    1    2    1    2    1    2    2
+ [6,]    1    2    1    2    2    1    1
+ [7,]    1    2    2    1    1    1    2
+ [8,]    1    2    2    1    2    2    1
+ [9,]    2    1    1    2    1    1    2
+[10,]    2    1    1    2    2    2    1
+[11,]    2    1    2    1    1    2    2
+[12,]    2    1    2    1    2    1    1
+[13,]    2    2    1    1    1    2    1
+[14,]    2    2    1    1    2    1    2
+[15,]    2    2    2    2    1    1    1
+[16,]    2    2    2    2    2    2    2
+attr(,"class")
+[1] "oa"     "matrix"
+attr(,"origin")
+attr(,"origin")$package
+[1] "DoE.MIParry"
+
+attr(,"origin")$call
+gurobi_MIParray(16, rep(2, 7), resolution = 3, kmax = 4, forced = force, 
+    gurobi.params = list(OutputFlag = 0))
+
+optimization results:
+    A1to2        A3        A4 
+"OPTIMAL" "OPTIMAL" "OPTIMAL" 
+
+further attribute(s) (accessible with attr( feld , attrname)):
+[1] "MIPinfo"
+$conecur
+[1] TRUE
+
+$nruns
+[1] 16
+
+$nlev
+[1] 2 2 2 2 2 2 2
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "gurobi"
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 60
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+    A1to2        A3        A4 
+"OPTIMAL" "OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 1792
+
+$objbound
+[1] 1792
+
+$forced
+       1        2        3        4        5        6        7        8 
+"forced"    "new"    "new" "forced" "forced"    "new"    "new" "forced" 
+       9       10       11       12       13       14       15       16 
+   "new" "forced" "forced"    "new"    "new" "forced" "forced"    "new" 
+
+> 
+> proc.time()
+   user  system elapsed 
+   3.55    0.09    3.91 
