@@ -55,6 +55,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 3
+
 $last.k
 [1] 3
 
@@ -102,6 +105,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 2
 
 $last.k
 [1] 2
@@ -221,6 +227,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 3
+
 $last.k
 [1] 3
 
@@ -258,6 +267,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 3
 
 $last.k
 [1] 4
@@ -297,6 +309,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 3
 
 $last.k
 [1] 4
@@ -341,6 +356,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 3
 
 $last.k
 [1] 3
@@ -408,6 +426,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 2
 
 $last.k
 [1] 2
@@ -550,6 +571,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 3
+
 $last.k
 [1] 3
 
@@ -609,6 +633,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 3
 
 $last.k
 [1] 4
@@ -670,6 +697,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 3
 
 $last.k
 [1] 4
@@ -759,6 +789,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 2
+
 $last.k
 [1] 3
 
@@ -787,6 +820,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 2
+
 $last.k
 [1] 3
 
@@ -813,6 +849,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 2
 
 $last.k
 [1] 3
@@ -876,6 +915,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 2
+
 $last.k
 [1] 3
 
@@ -925,6 +967,9 @@ $nruns
 
 $nlev
 [1] 2 2 3 2 2
+
+$reso
+[1] 2
 
 $last.k
 [1] 3
@@ -977,6 +1022,9 @@ $nruns
 $nlev
 [1] 2 2 3 2 2
 
+$reso
+[1] 2
+
 $last.k
 [1] 3
 
@@ -1019,4 +1067,4 @@ $objval
 > 
 > proc.time()
    user  system elapsed 
- 143.25    5.88   76.20 
+ 143.53    6.97   76.81 

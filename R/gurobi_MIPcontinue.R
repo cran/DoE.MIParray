@@ -25,6 +25,7 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
   nruns <- qco$info$nruns
   nlev <- qco$info$nlev
   nfac <- length(nlev)
+  reso <- qco$info$reso
   last.k <- qco$info$last.k
   if (last.k==nfac && !improve){
     warning("improve was set to TRUE, because last.k=nfac")
@@ -123,7 +124,14 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
       poscopt <- qco$quadcon[[nc]]$Qc@i[1]+1
       start <- qco$start   ## prepare for adding this later
       vcur <- start[poscopt]  ## last objective value
-      if (round(vcur,2)==0) qco <- gurobi_modelLastQuadconToLinear(qco)
+      if (round(vcur,2)==0) {
+         qco <- gurobi_modelLastQuadconToLinear(qco)
+         if (kmax==qco$info$reso + 1) {
+            qco$info$reso <- kmax
+            params$BestObjStop <- max(params$BestObjStop, 
+                sum(DoE.base:::lowerbounds(nruns, nlev, kmax)) + 0.5)
+         }
+      }
       else qco$ub[poscopt] <- vcur + 0.3   ## ensure that A_last.k cannot deteriorate
       }
     ## preparation of matrices needed in formulating the optimization problem

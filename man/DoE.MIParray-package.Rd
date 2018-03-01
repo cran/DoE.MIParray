@@ -19,6 +19,7 @@ Functions \code{\link{gurobi_MIParray}} and \code{\link{mosek_MIParray}} create 
 The strategy used in the package is a modification of Fontana (2017). Modifications include enforcing the requested resolution via a linear optimization step (much faster than sequentially optimizing all those word lenths until they are zeroes), and using a result on coding invariance from Groemping (in press) for a more parsimonious formulation of constraints. Mixed integer programming can use a lot of time and resources; in particular, the confirmation of the optimality of a solution that has been found can take prohibitively long, even if the optimal solution itself has been found fast (which is also not necessarily so). Functions \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}} can be used to continue optimization for larger problems,
 where optimization was previously aborted, e.g. due to a time limit. Note that it is possible to continue an optimization effort started with Gurobi using Mosek and vice versa, because the functions \code{gurobi_MIPcontinue} and \code{mosek_MIPcontinue} can convert problems using the internal functions \code{\link{mosek2gurobi}} and \code{\link{gurobi2mosek}}.
 }
+
 \references{
 Fontana, R. (2017). Generalized Minimum Aberration mixed-level orthogonal arrays: a general approach based on sequential integer quadratically constrained quadratic programming. \emph{Communications in Statistics – Theory Methods} \bold{46}, 4275-4284.
 
@@ -45,6 +46,15 @@ Mosek can usually be escaped using the <ESC> key, and one can even hope to get a
 However, after such escapes, it is also advisable to use \pkg{RMosek}'s internal clean function
 (\code{Rmosek:::mosek_clean()}), since computer instabilities after repeated escapes from Mosek have been observed
 (the package functions execute the \code{mosek_clean} command after conducting Mosek runs).
+}
+\section{Installation}{
+Gurobi and Mosek need to be separately installed; please follow vendors' instructions; it is necessary to obtain a license; for academic use, free academic licenses are available in both cases.
+
+Both Gurobi and Mosek provide R packages (\pkg{gurobi} and \pkg{Rmosek}) for accessing the software, and they also provide instructions on their installation.
+
+For Gurobi, the R package \pkg{gurobi} is provided with the software installation files and can simply be installed like usual for a non-Web package.
+
+For Mosek, it is necessary to obtain a current version of \pkg{Rmosek} from the Mosek website. Its installation requires compilation from source. Several prerequisites are needed, basically the same ones needed for compiling packages. Make sure to set up the R environment for this purpose (for Windows, see \url{https://cran.r-project.org/bin/windows/Rtools/}; you may have to set some paths yourself; I am not familiar with the proper process for other platforms). If ts is accomplished and package \pkg{Matrix} is at the latest level (as recommended in the \pkg{Rmosek} online documentation), running the \code{install.packages} command provided in the \pkg{Rmosek} online documentation (Mosek ApS 2017b) will smoothly install the package. Don't be confused by Mosek ApS's strange communication regarding \pkg{Rmosek} version numbers; they are currently not kept in sync with Mosek version numbers, although the documentation seems to suggest so: the current version (March 01 2018) of package Rmosek is 8.0.69, while the Mosek version is 8.1.0.37 (the revision versions of Mosek change quite frequently). Whenever Mosek itself is re-installed (at least with a change of minor version like 8.0 to 8.1), the \pkg{Rmosek} sources must be re-compiled (e.g. with the above-mentioned \code{install.packages} command), even if their version has not changed; this is presumably why Mosek ApS speak of a version number for the binary that corresponds to the Mosek version number, while the sources keep their version number (somewhat misleading for the R community). From within R, version numbers can be queried by \code{packageVersion("Rmosek")} and \code{Rmosek::mosek_version()}, respectively.
 }
 \author{
 Ulrike Groemping

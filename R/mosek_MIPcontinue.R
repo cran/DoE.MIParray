@@ -34,6 +34,7 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
   nlev <- qco$info$nlev
   nfac <- length(nlev)
   sl <- qco$sl
+  reso <- qco$info$reso
   last.k <- qco$info$last.k
   if (last.k==nfac && !improve){
     warning("improve was set to TRUE, because last.k=nfac")
@@ -75,7 +76,8 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
 
    ## the stricter time request wins
   ## the stricter time request wins, LOWER_OBJ_CUT is always set
-  if (maxtime<Inf){
+
+  if (maxtime < Inf){
     if (!is.null(mosek.params$dparam)){
       mosek.params$dparam$MIO_MAX_TIME <-
         min(maxtime, mosek.params$dparam$MIO_MAX_TIME)
@@ -108,6 +110,9 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
       ## can start immediately to try further improvement
       ## increase LOWER_OBJ_CUT to current largest bound, if larger
       ##    (add small margin, because everything should be integer)
+  if (last.k == reso) 
+       qco$dparam$LOWER_OBJ_CUT <- 
+          max(sum(DoE.base:::lowerbounds(nruns, nlev, last.k)) + 0.5, 0.5)
       if (qco$info$objbound > qco$dparam$LOWER_OBJ_CUT)
         qco$dparam$LOWER_OBJ_CUT <- qco$info$objbound + 0.3
 
@@ -128,7 +133,14 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
         ## remove conic constraint where linear is sufficient
         ##    (vcur is integral, thus liberal tolerance OK)
         ## else make sure A_last.k cannot deteriorate
-        if (round(vcur,2)==0) qco <- mosek_modelLastQuadconToLinear(qco)
+        if (round(vcur,2)==0) {
+            qco <- mosek_modelLastQuadconToLinear(qco)
+            if (kmax==qco$info$reso + 1) {
+               qco$info$reso <- kmax
+               qco$dparam$LOWER_OBJ_CUT <- max(qco$dparam$LOWER_OBJ_CUT, 
+               sum(DoE.base:::lowerbounds(nruns, nlev, kmax)) + 0.5)
+               }
+            }
         else qco$bx[2, poscopt] <- vcur + 0.3
       }
 

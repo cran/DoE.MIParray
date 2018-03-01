@@ -193,6 +193,7 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
   ## info elements
   qco1$info$nruns <- nruns
   qco1$info$nlev <- nlev
+  qco1$info$reso <- strength+1
   qco1$info$last.k <- max(1,strength)
   qco1$info$optimizer <- "gurobi"
   qco1$info$conecur <- FALSE
@@ -269,6 +270,8 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
       qco1 <- gurobi_modelLastQuadconToLinear(qco1)   ## should not change initial model,
                                                   ## except for strength 0
       nvar <- length(qco1$obj)
+      ## increase resolution in info element, if A_R=0
+      if (kk==qco1$info$reso + 1) qco1$info$reso <- kk
     }
 
     ## df(kk+1) +2 additional variables
@@ -292,14 +295,14 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
 
     probs[[kk]] <- qco1
     #gurobi_rsave(qco1, qco1$start)
-    if (kk==resolution) {
+    if (kk==qco1$info$reso) {
+      ## use updated resolution, if zeroes occurred
       hilf <- params$BestObjStop
-      ## later, use DoE.base:::lowerbounds
-      bound <- sum(lowerbounds(nruns, nlev, kk)) + 0.5
+      bound <- sum(DoE.base:::lowerbounds(nruns, nlev, kk)) + 0.5
       params$BestObjStop <- max(hilf, bound)
     }
     sl <- gurobi::gurobi(qco1, params=params)
-    if (kk==resolution){
+    if (kk==qco1$info$reso){
       params$BestObjStop <- hilf
       if (!sl$status %in% c("TIME_LIMIT", "OPTIMAL") && sl$objval <= bound)
         sl$status <- "OPTIMAL"  ## better use a different word for distinguishing from Gurobi-confirmed?

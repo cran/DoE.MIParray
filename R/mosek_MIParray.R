@@ -188,6 +188,7 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
   ## info elements
   qco1$info$nruns <- nruns
   qco1$info$nlev <- nlev
+  qco1$info$reso <- resolution
   qco1$info$last.k <- max(1,strength)
   qco1$info$optimizer <- "mosek"
   qco1$info$conecur <- FALSE
@@ -268,11 +269,13 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
       ## incorporate solution vector from last optimization (which included the cone)
       rem <- length(sl$sol$int$xx)-length(qco1$c)    ## number of variables to be removed
       qco1 <- mosek_modelAddStart(qco1, sl$sol, remove=rem)
+      nvar <- length(qco1$c)
       #cat("qco1 after deleting cone variables for vcur=0\n")
       #print(lengths(qco1))
+      ## increase resolution in info element, if A_R=0
+      if (kk==qco1$info$reso + 1) qco1$info$reso <- kk
     }
 
-    nvar <- length(qco1$c)
    if (vcur > 0){
       ## for the previous objective, the constraint to the optimum vcur is added in bx
       ## before adding the next cone
@@ -295,18 +298,18 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
     #mosek_rsave(qco1, sl)
     hilf <- qco1$info
     qco1$info <- NULL
-    if (kk==resolution){
+    if (kk==hilf$reso){
+      ## use updated resolution, if zeroes occurred
       hilf2 <- qco1$dparam
-      ## later, use DoE.base:::lowerbounds
-      bound <- sum(lowerbounds(nruns, nlev, kk)) + 0.5
+      bound <- sum(DoE.base:::lowerbounds(nruns, nlev, kk)) + 0.5
       qco1$dparam$LOWER_OBJ_CUT <- max(qco1$dparam$LOWER_OBJ_CUT, bound)
     }
     withCallingHandlers(
       {sl <- Rmosek::mosek(qco1, opts=opts)},
     warning = h )
-    qco1$info <- hilf
-    if (kk==resolution){
-      qco1$dparam <- hilf2
+    qco1$info <- hilf 
+    if (kk==hilf$reso){
+      qco1$dparam <- hilf2 ## LOWER_OBJ_CUT is set to the value of the call again
       if (!sl$sol$int$solsta == "INTEGER_OPTIMAL" && sl$sol$int$pobjval <= bound)
         sl$sol$int$solsta <- "INTEGER_OPTIMAL"
           ## better use a different word for distinguishing from Mosek-confirmed?

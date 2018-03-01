@@ -1,4 +1,12 @@
-Changes to package DoE.MIParray
+﻿Changes to package DoE.MIParray
+
+Version 0.11, March 2018
+- modified gurobi_MIPcontinue and mosek_MIPcontinue to use the lower bounds for A_R, 
+  where possible
+- removed lowerbound_AR and relatives, because these are now in DoE.base 0.32
+- export a few central quality criteria / equivalence checking functions from DoE.base
+- changed wording in Description so that a CRAN version of Rmosek is no longer implied 
+  (since Rmosek will be removed from CRAN according to its maintainer)
 
 Version 0.10, September 26 2017
 - single-quoted software names for avoiding "potentially mis-spelled" note
