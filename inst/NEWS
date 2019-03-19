@@ -1,4 +1,12 @@
-﻿Changes to package DoE.MIParray
+Changes to package DoE.MIParray
+
+Version 0.12, March 2019
+- added search functions for searching over factor orders (performance may 
+  strongly depend on the factor order)
+- added print.oa to remove all attributes except a few specific ones
+- added contr.XuWu to exports
+- updated literature references
+- updated information on availability of Rmosek
 
 Version 0.11, March 2018
 - modified gurobi_MIPcontinue and mosek_MIPcontinue to use the lower bounds for A_R, 
@@ -18,7 +26,7 @@ Version 0.9, September 22 2017
   based on Liu and Lin 2009
 
 Version 0.8, September 04 2017
-- incorporated bound for A_R from Grömping and Xu (2014) Theorem 5
+- incorporated bound for A_R from Gr�mping and Xu (2014) Theorem 5
   into gurobi_MIParray and mosek_MIParray; this allows to avoid potentially
   lengthy confirmations of optimality, where all R factor projections have weak strength R.
   Initially, the functions lowerbounds and lowerbound_AR are included here;

@@ -132,7 +132,6 @@ no violation of necessary criteria  for strength  3  was found
 1 0 0 0 1 0 
 =======================================
 [1] 4
-Academic license - for non-commercial use only
 === GWLP after optimizing A4 ===
 0 1 2 3 4 5 
 1 0 0 0 0 1 
@@ -198,6 +197,8 @@ $objval
 $objbound
 [1] 0
 
+Warning message:
+package 'gurobi' was built under R version 3.5.0 
 > 
 > ## extending an existing array with mosek
 > if (require(Rmosek)){
@@ -307,19 +308,16 @@ $forced
 +   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")]) ## stable output
 + }
 no violation of necessary criteria  for strength  2  was found
-Academic license - for non-commercial use only
 === GWLP after enforcing resolution ===
 0 1 2 3 4 5 6 7 
-1 0 0 3 3 0 0 1 
+1 0 0 4 3 0 0 0 
 =======================================
 [1] 3
-Academic license - for non-commercial use only
 === GWLP after optimizing A3 ===
 0 1 2 3 4 5 6 7 
 1 0 0 0 7 0 0 0 
 =================================
 [1] 4
-Academic license - for non-commercial use only
 === GWLP after optimizing A4 ===
 0 1 2 3 4 5 6 7 
 1 0 0 0 7 0 0 0 
@@ -417,4 +415,4 @@ $forced
 > 
 > proc.time()
    user  system elapsed 
-   3.55    0.12    3.65 
+   3.57    0.14    3.70 

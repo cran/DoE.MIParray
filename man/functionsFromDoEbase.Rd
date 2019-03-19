@@ -5,6 +5,7 @@
 \alias{length3}
 \alias{length4}
 \alias{length5}
+\alias{contr.XuWu}
 \alias{GWLP}
 \alias{ICFTs}
 \alias{SCFTs}
@@ -23,6 +24,7 @@ length2(design, with.blocks = FALSE, J = FALSE)
 length3(design, with.blocks = FALSE, J = FALSE, rela = FALSE)
 length4(design, with.blocks = FALSE, separate = FALSE, J = FALSE, rela = FALSE)
 length5(design, with.blocks = FALSE, J = FALSE, rela = FALSE)
+contr.XuWu(n, contrasts=TRUE)
 GWLP(design, ...)
 SCFTs(design, digits = 3, all = TRUE, resk.only = TRUE, kmin = NULL, kmax = ncol(design),
    regcheck = FALSE, arft = TRUE, cancors = FALSE, with.blocks = FALSE)
@@ -40,6 +42,8 @@ ICFTs(design, digits = 3, resk.only = TRUE, kmin = NULL, kmax = ncol(design),
   \item{with.blocks}{see \pkg{\link{DoE.base}}}
   \item{J}{see \pkg{\link{DoE.base}}}
   \item{rela}{see \pkg{\link{DoE.base}}}
+  \item{n}{see \pkg{\link{DoE.base}}}
+  \item{contrasts}{see \pkg{\link{DoE.base}}}
   \item{separate}{see \pkg{\link{DoE.base}}}
   \item{digits}{see \pkg{\link{DoE.base}}}
   \item{all}{see \pkg{\link{DoE.base}}}
