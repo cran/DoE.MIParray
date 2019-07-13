@@ -2,13 +2,12 @@
 import(stats)
 import(methods)
 importFrom(combinat, "permn")
-import(DoE.base, except=c("lm", "aov", "lm.design", "aov.design", "lm.formula", "aov.formula", "print.oa"))
-S3method(print, oa)   ## strangely enough, I am not asked to document the method
-                      ## which is fine, because it is documented in DoE.base
-
-## also export a few functions from DoE.base
+import(DoE.base, except=c("lm", "aov", "lm.design", "aov.design", "lm.formula", "aov.formula"))
 export("gurobi_MIParray", "mosek_MIParray",
        "gurobi_MIPcontinue", "mosek_MIPcontinue", "lowerbound_AR", 
        "mosek_MIPsearch","gurobi_MIPsearch","print.oa",
        "oa_feasible", "GWLP", "ICFTs", "SCFTs", 
        "length2", "length3", "length4", "length5", "contr.XuWu")
+## the master documentation of print.oa is in DoE.base
+## but a copy must be kept here
+S3method(print, oa)   

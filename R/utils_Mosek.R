@@ -1,13 +1,13 @@
 ## not used any more
-mosek_rsave <- function(mod, sol, file="mosek_lastsave.rda"){
+#mosek_rsave <- function(mod, sol, file="mosek_lastsave.rda"){
   ## model and solution must be compatible (user responsibility)
   #if (is.list(sol)){
   #  if (!length(sol$int$xx)==ncol(mod$A)) stop("model and sol incompatible")
   #}
   #else warning("sol not compatible to mod, only mod is saved")
-  saved_mosek_model <- list(mod=mod, sol=sol)
-  save(saved_mosek_model, file=file)
-}
+#  saved_mosek_model <- list(mod=mod, sol=sol)
+#  save(saved_mosek_model, file=file)
+#}
 
 #mosek_rretrieve <- function(file="mosek_lastsave.rda"){
   ## model and solution must be compatible (user responsibility)

@@ -1,13 +1,13 @@
 ## not used any more
-gurobi_rsave <- function(mod, sol, file="gurobi_lastsave.rda"){
+#gurobi_rsave <- function(mod, sol, file="gurobi_lastsave.rda"){
   ## model and solution must be compatible (user responsibility)
-  if (is.numeric(sol)) if (!length(sol)==ncol(mod$A)) stop("model and sol incompatible")
-  if (is.list(sol))
-    if (!length(sol$x)==ncol(mod$A)) stop("model and sol incompatible") else sol <- sol$x
-    mod$start <- sol
-    saved_gurobi_model <- mod
-    save(saved_gurobi_model, file=file)
-}
+#  if (is.numeric(sol)) if (!length(sol)==ncol(mod$A)) stop("model and sol incompatible")
+#  if (is.list(sol))
+#    if (!length(sol$x)==ncol(mod$A)) stop("model and sol incompatible") else sol <- sol$x
+#    mod$start <- sol
+#    saved_gurobi_model <- mod
+#    save(saved_gurobi_model, file=file)
+#}
 
 #gurobi_rretrieve <- function(file="gurobi_lastsave.rda"){
   ## the file should contain a gurobi model saved with gurobi_rsave

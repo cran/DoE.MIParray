@@ -20,8 +20,10 @@ further arguments for default print function
 }
 }
 \details{
-The function currently suppresses the printing of all attributes except 
-\code{origin}, \code{class},\code{dim} and \code{dimnames}.
+The function currently removes all attributes except \code{origin}, \code{class}, \code{dim}, \code{dimnames} before printing.\cr
+If available, status information from the \code{MIPinfo} attribute is printed.\cr 
+Additionally, the names of unusual attributes are printed. 
+They can also be printed separately by running \code{names(attributes(x))}; to access an attribute, run \code{attr(x, "MIPinfo")}, for example.
 }
 \value{
 The function is used for its side effects and does not return anything.

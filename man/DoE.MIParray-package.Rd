@@ -16,8 +16,12 @@ Any array found by a function of this package will have the requested resolution
 
 Functions \code{\link{gurobi_MIParray}} and \code{\link{mosek_MIParray}} create an array from scratch (\code{start=NULL} and \code{forced=NULL}), by trying to improve a starting array specified with the argument \code{start}, or by restricting a portion of the array to correspond to a pre-existing array with the argument \code{forced}. If no starting array is given, the functions initially obtain one by solving a linear optimization problem for obtaining a design with the requested resolution. Subsequently, the number of shortest words of the starting array is optimized, followed by the numbers of words of length up to \code{kmax}.
 
-The strategy used in the package is a modification of Fontana (2017). Modifications include enforcing the requested resolution via a linear optimization step (much faster than sequentially optimizing all those word lenths until they are zeroes), and using a result on coding invariance from Groemping (in press) for a more parsimonious formulation of constraints. Mixed integer programming can use a lot of time and resources; in particular, the confirmation of the optimality of a solution that has been found can take prohibitively long, even if the optimal solution itself has been found fast (which is also not necessarily so). Functions \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}} can be used to continue optimization for larger problems,
-where optimization was previously aborted, e.g. due to a time limit. Note that it is possible to continue an optimization effort started with Gurobi using Mosek and vice versa, because the functions \code{gurobi_MIPcontinue} and \code{mosek_MIPcontinue} can convert problems using the internal functions \code{\link{mosek2gurobi}} and \code{\link{gurobi2mosek}}.
+Where functions \code{\link{gurobi_MIParray}} and \code{\link{mosek_MIParray}} do not easily find an optimal array, it may be worthwhile to consider using functions \code{\link{gurobi_MIPsearch}} and \code{\link{mosek_MIPsearch}}, which can search over different orderings of the factor levels; these have been provided because a brief search for a fortunate level orderings may be successful where a very long search for an unfortunate level ordering fails.
+
+The strategy used in the package is a modification of Fontana (2017). Modifications include enforcing the requested resolution via a linear optimization step (much faster than sequentially optimizing all those word lengths until they are zeroes), and using a result on coding invariance from Groemping (2018) for a more parsimonious formulation of constraints. Mixed integer programming can use a lot of time and resources; in particular, the confirmation of the optimality of a solution that has been found can take prohibitively long, even if the optimal solution itself has been found fast (which is also not necessarily so). Functions \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}} can be used to continue optimization for larger problems,
+where optimization was previously aborted, e.g. due to a time limit (however, a lot of effort is lost and has to be repeated when continuing a previous attempt). Note that it is possible to continue an optimization effort started with Gurobi using Mosek and vice versa, because the functions \code{gurobi_MIPcontinue} and \code{mosek_MIPcontinue} can convert problems using the internal functions \code{\link{mosek2gurobi}} and \code{\link{gurobi2mosek}}. 
+
+
 }
 
 \references{
@@ -34,7 +38,7 @@ Gurobi Optimization Inc. (2018). Gurobi Optimizer Reference Manual. \url{http://
 Mosek ApS (2017a). MOSEK version w.x.y.z documentation. Accessible at: \url{https://www.mosek.com/documentation/}. This package has been developed using version 8.1.0.23 (accessed August 29 2017).
 
 Mosek ApS (2017b). MOSEK Rmosek Package 8.1.y.z. \url{http://docs.mosek.com/8.1/rmosek/index.html}.
-\emph{!!! In normal R speak, this is the documentation of the Rmosek package version 8.0.69 (or whatever comes next), when applied on top of the Mosek version 8.1.y.z (this package has been devoloped with Mosek version 8.1.0.23 and will likely not work for Mosek versions before 8.1). !!! (accessed August 29 2017)}
+\emph{!!! In normal R speak, this is the documentation of the Rmosek package version 8.0.69, when applied on top of the Mosek version 8.1.y.z (this package has been devoloped with Mosek version 8.1.0.23 and will likely not work for Mosek versions before 8.1). !!! (accessed August 29 2017)}
 
 Xu, H. and Wu, C.F.J. (2001). Generalized minimum aberration for asymmetrical fractional factorial designs. \emph{Annals of Statistics} \bold{29}, 549-560.
 }
@@ -44,7 +48,7 @@ The package is not meant for situations, for which a full factorial design would
 }
 \section{Warning}{
 Escaping from a Gurobi run will most likely be unsuccessful, might leave R in an unstable state, and usually fails to release the entire CPU usage; thus, one should think carefully about the affordable run times. \cr
-Mosek can usually be escaped using the <ESC> key, and one can even hope to get a valid output.
+Mosek can usually be escaped using the <ESC> key, and one can even hope to get a valid output. 
 However, after such escapes, it is also advisable to use \pkg{RMosek}'s internal clean function
 (\code{Rmosek:::mosek_clean()}), since computer instabilities after repeated escapes from Mosek have been observed
 (the package functions execute the \code{mosek_clean} command after conducting Mosek runs).
@@ -56,14 +60,30 @@ Both Gurobi and Mosek provide R packages (\pkg{gurobi} and \pkg{Rmosek}) for acc
 
 For Gurobi, the R package \pkg{gurobi} is provided with the software installation files and can simply be installed like usual for a non-Web package.
 
-For Mosek, there is a CRAN package \pkg{Rmosek}, which is a stump only and can be used for installing the suitable package \pkg{Rmosek} from the Mosek website. Its installation requires compilation from source. Several prerequisites are needed, basically the same ones needed for compiling packages. Make sure to set up the R environment for this purpose (for Windows, see \url{https://cran.r-project.org/bin/windows/Rtools/}; you may have to set some paths yourself; I am not familiar with the proper process for other platforms). If this is accomplished and package \pkg{Matrix} is at the latest level (as recommended in the \pkg{Rmosek} online documentation), running the \code{install.packages} command provided in the \pkg{Rmosek} online documentation (Mosek ApS 2017b) will smoothly install the package (or running the installation tools from the CRAN package Rmosek that solely exists for this purpose and for supporting CRAN package checks for packages like this one that use the real non-CRAN \pkg{Rmosek}). Don't be confused by Mosek ApS's strange communication regarding \pkg{Rmosek} version numbers; they are currently not kept in sync with Mosek version numbers, although the documentation seems to suggest so: the current version (March 01 2018) of package Rmosek is 8.0.69, while the Mosek version is 8.1.0.37 (the revision versions of Mosek change quite frequently). Whenever Mosek itself is re-installed (at least with a change of minor version like 8.0 to 8.1), the \pkg{Rmosek} sources must be re-compiled (e.g. with the above-mentioned \code{install.packages} command), even if their version has not changed; this is presumably why Mosek ApS speak of a version number for the binary that corresponds to the Mosek version number, while the sources keep their version number (somewhat misleading for the R community). From within R, version numbers can be queried by \code{packageVersion("Rmosek")} and \code{Rmosek::mosek_version()}, respectively.
-}
+For Mosek, there is a CRAN package \pkg{Rmosek}, which is a stump only and can be used for installing the suitable package \pkg{Rmosek} from the Mosek website. 
+Its installation requires compilation from source.  Several prerequisites are needed, basically the same ones needed for compiling packages. 
+Make sure to set up the R environment for this purpose (for Windows, see \url{https://cran.r-project.org/bin/windows/Rtools/}; you may have to set some paths yourself; 
+I am not familiar with the proper process for other platforms).  If this is accomplished and package \pkg{Matrix} is at the latest level (as recommended in the \pkg{Rmosek} 
+online documentation), install the CRAN package \pkg{Rmosek}, whose purpose it is to support installation of the appropriate \pkg{Rmosek} package for your platform and Mosek version. 
+Once this CRAN package is available, run function \code{mosek_attachbuilder}, specifying the appropriate path as 
+pointed out in the function's documentation, and subsequently run the custom-made function \code{install.rmosek}.  After this activity (if all went well), the CRAN package \pkg{Rmosek} 
+will have been replaced by a working version of package \pkg{Rmosek} whose version number depends on your version of Mosek.  In case of problems, 
+running the \code{install.packages} command provided in the \pkg{Rmosek} online documentation for your version of Mosek (Mosek ApS 2017b) may also be worth a try; 
+if all else fails, you may have to contact \pkg{Rmosek} support.
+
+Don't be confused by Mosek ApS's somewhat strange communication regarding the package \pkg{Rmosek}: the CRAN version (stump for the purpose of supporting installation of the working version) 
+has its own separate numbering that currently starts with \dQuote{1}. The working \pkg{Rmosek} packages have version numbers whose first digit is kept in sync with the Mosek major version number; 
+apart from that, version numbers of \pkg{Rmosek} versions and Mosek versions are not kept in sync; for example, the current version (July 13 2019) of package Rmosek for Mosek 
+version 8 is 8.0.69, while the Mosek version is 8.1.0.81 (the revision versions of Mosek change quite frequently).  Whenever Mosek itself is re-installed (at least with a change of minor version 
+like 8.0 to 8.1), the \pkg{Rmosek} sources must be re-compiled, even if their version has not changed; 
+this is presumably why Mosek ApS speak of a version number for the binary that corresponds to the Mosek version number, while the sources keep their version number 
+(somewhat confusing for the R community).  From within R, version numbers can be queried by \code{packageVersion("Rmosek")} and \code{Rmosek::mosek_version()}, respectively.}
 \author{
 Ulrike Groemping
 }
 
 \seealso{
-See also as \code{\link{gurobi_MIParray}}, \code{\link{mosek_MIParray}}, \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}}. Furthermore, the following links from package \pkg{DoE.base} are of interest:
+See also as \code{\link{gurobi_MIParray}}, \code{\link{mosek_MIParray}}, \code{\link{gurobi_MIPsearch}}, \code{\link{mosek_MIPsearch}}, \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}}. Furthermore, the following links from package \pkg{DoE.base} are of interest:
 \code{\link[DoE.base]{show.oas}} queries catalogued orthogonal arrays and \code{\link[DoE.base]{oa_feasible}} carries out feasibility checks for runs, levels and strength requirements.
 }
 \examples{

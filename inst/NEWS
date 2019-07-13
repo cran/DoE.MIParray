@@ -1,5 +1,17 @@
 Changes to package DoE.MIParray
 
+Version 0.13, July 2019
+- edited several documentation files to include references to the search functionality
+- added information regarding the new Mosek parameter MSK_IPAR_MIO_SEED (from Mosek version 9), 
+  which allows to modify the search path by different random number initializations 
+  (default 42)
+- documented class qco and linked to the documentation for class oa
+- added more detail on Rmosek package versions to the installation instructions
+  for Rmosek, and updated Description to reflect availability of Rmosek on CRAN
+- moved the print.oa function to package DoE.base 
+  (but kept a duplicate of the documentation, because of error otherwise)
+- removed obsolete internal functions gurobi_rsave, mosek_rsave, and countToD
+
 Version 0.12, March 2019
 - added search functions for searching over factor orders (performance may 
   strongly depend on the factor order)

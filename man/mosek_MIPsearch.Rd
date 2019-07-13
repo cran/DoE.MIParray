@@ -83,6 +83,10 @@ the target function can take on integer values only and cannot be negative.
 
 If a valid starting value is not accepted by Mosek, it may be worthwhile to increase \code{dparam$INTPNT_CO_TOL_PFEAS}.
 
+Users of Mosek versions 9 and higher may want to play with \code{iparam$MIO_SEED}, which was introduced as a new parameter with Mosek version 9 (default: 42); 
+different seeds modify the path taken through the search space for a given level ordering; thus, varying seeds can also be the route to choose where searching over level 
+orderings is not feasible. 
+
 Note that a user specified \code{mosek.params} should always contain the specifications shown under Usage. Exceptions: \code{LOWER_OBJ_CUT} is always specified to be at least 0.5, i.e. this option can be safely omitted without loosing anything, and intentional changes can of course be made.
 }
   \item{heurist}{
@@ -121,11 +125,23 @@ Even though Gurobi was less successful as a search tool in the examples that
 were examined so far, it may be helpful for other examples.
 
 The options suppress printed output from the optimizers themselves.
+
+Mosek Version 9 has gained a seed argument (\code{iparam$MIO_SEED}, 
+which implements the Mosek parameter \code{MSK_IPAR_MIO_SEED}). 
+Playing with seeds in \code{mosek_MIParray} may be an alternative to using the search approach, 
+because it may lead to different paths through the search space for a fixed ordering of the \code{nlevels} vector. 
+So far, I have only very little experience with using seeds; user reports are very welcome.
 }
 \value{
-an array of class \code{oa} with the attributes added by \code{mosek_MIParray} or \code{gurobi_MIParray}, resp. \cr
+an array of class \code{\link[DoE.base]{oa}} with the attributes added 
+by \code{mosek_MIParray} or \code{gurobi_MIParray}, resp. \cr
 In addition, the attribute \code{optorder} contains the vector of level orders that yielded the best design; 
 if \code{listout=TRUE}, also the attributes \code{orders} and \code{allplans}.
+
+Objects with the attribute \code{allplans} are quite large. If the attribute is 
+no longer needed, it can be removed from an object named \code{obj} 
+(replace with the name of your object) by the command \cr
+\code{attr(obj, "allplans") <- NULL}
 }
 
 \author{

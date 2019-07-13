@@ -58,10 +58,10 @@ Note that it is possible to continue optimization with Gurobi, if it was started
 
 Usage of options is analogous to functions \code{\link{mosek_MIParray}} and \code{\link{gurobi_MIParray}}, respectively, where these are described in more detail.
 
-For some applications, usability of \code{mosek_MIPcontinue} is currently hampered by the fact that Mosek's presolve routines identify additional integer variables and fail to recognise user-specified starting values for these that are not exactly integer-valued. According to Mosek ApS, this is scheduled to be remedied with Mosek Version 9.
+For some applications, usability of \code{mosek_MIPcontinue} is hampered in Mosek versions up to 8 by the fact that Mosek's presolve routines identify additional integer variables and fail to recognise user-specified starting values for these that are not exactly integer-valued. According to Mosek ApS, this is scheduled to be remedied with Mosek Version 9 (version 9 is now available; I have not checked whether this was indeed fixed).
 }
 \value{
-an array of class "oa", if not optimized to GMA with info for further continuation (see documentation of \code{\link{mosek_MIParray}} or \code{\link{gurobi_MIParray}})
+an array of class \code{link[DoE.base]{oa}}, if not optimized to GMA with info for further continuation (see documentation of \code{\link{mosek_MIParray}} or \code{\link{gurobi_MIParray}})
 }
 
 \author{
@@ -69,5 +69,8 @@ Ulrike Groemping
 }
 
 \seealso{
-See also \code{\link{DoE.MIParray}} for examples of the role of the \code{MIPcontinue} functions, \code{\link{mosek_MIParray}} and \code{\link{gurobi_MIParray}} for more detail on the optimization arguments.
+See also \code{\link{DoE.MIParray}} for examples of the role of the \code{MIPcontinue} functions, 
+\code{\link{mosek_MIParray}} and \code{\link{gurobi_MIParray}} for more detail on the optimization arguments, 
+\code{\link{mosek_MIPsearch}} and \code{\link{gurobi_MIPsearch}} for searching over \code{nlevels} orderings 
+(which may be a very successful alternative to trying to improve an initial optimization based on a fixed \code{nlevels} vector).
 }

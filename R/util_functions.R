@@ -8,22 +8,22 @@ ff <- function(...){
   as.matrix(hilf[,ncol(hilf):1])
 }
 
-countToD <- function(nlevels, count){
-  ## function to transform a vector of counts into a design matrix
-  dim <- log(length(count), base=nlevels)
-  if (!round(dim%%1,12)==0) stop("wrong length of count")
-  D <- eval(parse(text=paste("ff(",paste(rep(nlevels,dim),collapse=","),")")))
-  d <- matrix(rep(D[1,], count[1]), ncol=dim, byrow=TRUE)
-  csum <- cumsum(count)
-  for (i in 2:length(count)){
-    from <- csum[i-1]+1
-    ci <- count[i]
-    to <- csum[i]
-    if (ci > 0)
-      d <- rbind(d, matrix(rep(D[i,], ci), ncol=dim, byrow=TRUE))
-  }
-  as.matrix(d)
-}
+#countToD <- function(nlevels, count){
+#  ## function to transform a vector of counts into a design matrix
+#  dim <- log(length(count), base=nlevels)
+#  if (!round(dim%%1,12)==0) stop("wrong length of count")
+#  D <- eval(parse(text=paste("ff(",paste(rep(nlevels,dim),collapse=","),")")))
+#  d <- matrix(rep(D[1,], count[1]), ncol=dim, byrow=TRUE)
+#  csum <- cumsum(count)
+#  for (i in 2:length(count)){
+#    from <- csum[i-1]+1
+#    ci <- count[i]
+#    to <- csum[i]
+#    if (ci > 0)
+#      d <- rbind(d, matrix(rep(D[i,], ci), ncol=dim, byrow=TRUE))
+#  }
+#  as.matrix(d)
+#}
 
 countToDmixed <- function(nlevels, count){
   ## function to transform a vector of counts into a design matrix
