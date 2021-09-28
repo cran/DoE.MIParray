@@ -6,18 +6,18 @@
 Functions to Create a MIP Based Array Using Gurobi or Mosek
 }
 \description{
-The functions create an array with specified minimum resolution and optimized word length pattern based on mixed integer programming with the commercial software Gurobi (free academic license available) or Mosek (free academic license available).
+The functions create an array with specified minimum resolution and optionally also optimized word length pattern based on mixed integer programming with the commercial software Gurobi (free academic license available) or Mosek (free academic license available).
 Creation is done from scratch, or using a user-specified starting value, or extending an existing array. Important: Installation of Gurobi and/of Mosek as well as the corresponding R packages is necessary. The R package gurobi comes with the software, the current version of the R package Rmosek has to be obtained from vendor's website (CRAN version is outdated!).
 }
 \usage{
 mosek_MIParray(nruns, nlevels, resolution = 3, kmax = max(resolution, 2),
-   distinct = TRUE, detailed = 0, start=NULL, forced=NULL,
+   distinct = TRUE, detailed = 0, start=NULL, forced=NULL, find.only = FALSE,
    maxtime = Inf, nthread=2, mosek.opts = list(verbose = 10, soldetail = 1),
    mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5, MIO_TOL_ABS_GAP = 0.2,
       INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07),
       iparam = list(PRESOLVE_LINDEP_USE="OFF", LOG_MIO_FREQ=100)))
 gurobi_MIParray(nruns, nlevels, resolution = 3, kmax = max(resolution, 2),
-  distinct = TRUE, detailed = 0, start=NULL, forced=NULL,
+  distinct = TRUE, detailed = 0, start=NULL, forced=NULL, find.only = FALSE,
   maxtime = 60, nthread = 2, heurist=0.5, MIQCPMethod=0, MIPFocus=1,
   gurobi.params = list(BestObjStop = 0.5, LogFile=""))
 }
@@ -33,7 +33,7 @@ vector of integers (>=2); numbers of factor levels
 positive integer; the minimum resolution requested
 }
   \item{kmax}{
-integer, \code{kmax >= resolution} and \code{kmax >= 2} are required; the largest number of words to be optimized (default: \code{kmax = resolution})
+integer, \code{kmax >= resolution} and \code{kmax >= 2} are required; the largest number of words to be optimized (default: \code{kmax = resolution}). (If \code{find.only=TRUE}, optimization of numbers of words is suppressed.)
 }
   \item{distinct}{
 logical; if TRUE (default), restricts counting vector to 0/1 entries, which means that the resulting array is requested to have distinct rows; otherwise, duplicate rows are permitted, i.e. the counting vector can have arbitrary non-negative integers. Designs with distinct runs are usually better; in addition, binary variables are easier to handle by the optimization algorithm. Nevertheless, there are occasions where a better array is found faster with option \code{distinct=FALSE}, even if it has distinct rows.
@@ -48,6 +48,9 @@ a starting value for the algorithm: can be a array matrix with entries 1 to numb
   \item{forced}{
 for \code{resolution > 1} only;\cr
 runs to force into the solution design; can be given as an array matrix with the appropriate number of columns and less than \code{nruns} rows or a counting vector for the full factorial in lexicographic order with sum smaller than \code{nruns}; if \code{distinct=TRUE}, \code{forced} must have distinct rows (matrix) or 0/1 elements only.
+}
+  \item{find.only}{
+logical; if FALSE (default), a design of the requested resolution is found, which is subsequently improved in terms of its word lengths up to words of length \code{kmax}; otherwise, the function only attempts to find an array of the requested resolution, without optimizing word lenghts.
 }
   \item{maxtime}{
 the maximum run time in seconds per Gurobi or Mosek optimization request (the overall run time may become (much) larger); in case of conflict between \code{maxtime} and an explicit timing request in
@@ -73,7 +76,7 @@ the target function can take on integer values only and cannot be negative.
 
 If a valid starting value is not accepted by Mosek, it may be worthwhile to increase \code{dparam$INTPNT_CO_TOL_PFEAS}.
 
-Users of Mosek versions 9 and higher may want to play with \code{iparam$MIO_SEED}, which was introduced as a new parameter with Mosek version 9 (default: 42); 
+Users of Mosek versions 9 and higher may want to play with \code{iparam$MIO_SEED}, which was introduced as a new parameter with Mosek version 9 (default: 42);
 different seeds modify the path taken through the search space. Varying the seed may be an alternative to searching over different level orderings with function \code{\link{mosek_MIPsearch}}.
 
 Note that a user specified \code{mosek.params} should always contain the specifications shown under Usage. Exceptions: \code{LOWER_OBJ_CUT} is always specified to be at least 0.5, i.e. this option can be safely omitted without loosing anything, and intentional changes can of course be made.
@@ -102,14 +105,18 @@ the objective function can take on integer values only and cannot be negative.
 }
 }
 \details{
-The functions initially solve a linear optimization problem for obtaining a design with the requested resolution (if a start value is provided, this step is skipped).  Subsequently, the number of shortest words is optimized, followed by the numbers of words of length up to \code{kmax}. The argument \code{forced} allows to specify an existing array that is to be extended (e.g. to double or triple size; extension by a small number of runs will usually not be possible) in an optimized way.
+The functions initially solve a linear optimization problem for obtaining a design with the requested resolution;
+if a start value is provided, this step is skipped; if \code{find.only=TRUE}, the functions stop after this step.
+If \code{find.only=FALSE}, the number of shortest words is optimized, followed by the numbers of words of length up to \code{kmax}.
+The argument \code{forced} allows to specify an existing array that is to be extended (e.g. to double or triple size;
+extension by a small number of runs will usually not be possible) in an optimized way.
 
 For all but very small problems, it is likely advisable to choose \code{kmax} equal to the requested resolution (the default), and to proceed to longer words only after it has been made sure that the shortest word length has been optimized (as far as possible with reasonable effort). Further improvements of the same can be attempted by applying \code{gurobi_MIPcontinue} or \code{mosek_MIPcontinue} to the result object returned by the function. Note that it is possible to switch from using Mosek to using Gurobi or vice versa.
 An example for an optimization sequence can be found in the package overview at \code{\link{DoE.MIParray}}.
 
 In case of long run times, escaping from the gurobi run will most likely be unsuccessful and might even leave R in an unstable state; thus, one should think carefully about the affordable run times. On the contrary, it should usually be doable to escape a Mosek run; the remaining code of the function will still be executed and will return the final state.
 
-Besides the run time, the number of threads is a very important resource control parameter.  The default assumes that the user wants to use two of the computer's multiple cores. For using Gurobi's or Mosek's default (which is in most cases the use of all available cores), choose \code{nthread=0}.
+Besides the run time, the number of threads is a very important resource control parameter. The default assumes that the user wants to use two of the computer's multiple cores. For using Gurobi's or Mosek's default (which is in most cases the use of all available cores), choose \code{nthread=0}.
 
 The default Gurobi parameters have been chosen after systematic experimentation with a limited set of scenarii und Gurobi version 7.5.1.  The choice of \code{MIQCPMethod=0} was instrumental in many cases; changing it to -1 may occasionally be tried. The MIPFocus parameter also appears beneficial in many cases; changing it to 0 (leave choice to Gurobi) can be an option; it was slightly better than choice 1 for mixed level designs with relatively small run sizes, while choice \dQuote{1} was substantially better for the other cases. The heuristics proportion has been chosen as 0.5, because this choice seemed the best compromise for the situations considered. Note, however, that these parameters deteriorate performance for very simple cases, e.g. the test cases of Fontana (2017). For such cases, using \code{MIQCPMethod=-1}, \code{MIPFocus=0} and \code{heurist=0.05} will be preferrable; the defaults were chosen in this way, since doubling or even tripling very short run times was decided to be less detrimental than making more difficult problems completely intractable.
 
@@ -119,23 +126,27 @@ the parameters \code{Heuristics} and \code{MIPFocus} are reset to their defaults
 Gurobi always stores the file "gurobi.log" in the working directory; even if storage of the log is
 suppressed with the default option \code{LogFile=""} or directed to another location by specifying a path, the default file "gurobi.log" is created and filled with a small amount of content. Thus, make sure to use a different file name when intentionally storing some log.
 
-For Mosek, storing log output can be accomplished by directing the printed output to a suitable storing location.  Note that the setting \code{iparam$LOG_MIO_FREQ = 100} reduces the frequency of printing a log line for branch-and-cut optimization by the factor 10 versus the default. Parallelization in Mosek is not well-protected against interference from screen activity (for example). Thus, one should switch off logging to screen or otherwise, when working with many (all available) threads in parallel (\code{LOG=0} instead of \code{LOG_MIO_FREQ = 100} in the list \code{iparam}).
+For Mosek, storing log output can be accomplished by directing the printed output to a suitable storing location. Note that the setting \code{iparam$LOG_MIO_FREQ = 100} reduces the frequency of printing a log line for branch-and-cut optimization by the factor 10 versus the default. Parallelization in Mosek is not well-protected against interference from screen activity (for example). Thus, one should switch off logging to screen or otherwise, when working with many (all available) threads in parallel (\code{LOG=0} instead of \code{LOG_MIO_FREQ = 100} in the list \code{iparam}).
 }
 \value{
 an array of class \code{\link[DoE.base]{oa}}, possibly with the following attributes:
 \code{MIPinfo}, which is either an object of class \code{qco} or a simple list with information (which would be the \code{info} element of the object of class \code{qco} in case the last optimization was not successful), \code{history} as a list of problem and solution lists, and \code{matrices} as a list of matrix lists. Presence or absence of \code{history} and \code{matrices} is controlled by option \code{detailed}, while \code{MIPInfo} is present if the optimization can be potentially improved by improving the last step (stop because of time limit and not because of optimal value) or by improving the number of longer words.
 }
 \section{Installation}{
-Gurobi and Mosek need to be separately installed; please follow vendors' instructions; see also \code{\link{mosek_MIPsearch}} for more comments. 
+Gurobi and Mosek need to be separately installed; please follow vendors' instructions; see also \code{\link{mosek_MIPsearch}} for more comments.
 }
 \references{
 Fontana, R. (2017). Generalized Minimum Aberration mixed-level orthogonal arrays: a general approach based on sequential integer quadratically constrained quadratic programming. \emph{Communications in Statistics – Theory Methods} \bold{46}, 4275-4284.
 
-Gurobi Optimization Inc. (2017). Gurobi Optimizer Reference Manual. \url{http://www.gurobi.com/documentation/}.
+Groemping, U. and Fontana R. (2019). An Algorithm for Generating Good Mixed Level Factorial Designs. \emph{Computational Statistics & Data Analysis} \bold{137}, 101-114.
+
+Groemping, U. (2020). DoE.MIParray: an R package for algorithmic creation of orthogonal arrays. \emph{Journal of Open Research Software}, \bold{8: 24}. DOI: https://doi.org/10.5334/jors.286
+
+Gurobi Optimization Inc. (2017). Gurobi Optimizer Reference Manual. \url{https://www.gurobi.com:443/documentation/}.
 
 Mosek ApS (2017a). MOSEK version w.x.y.z documentation. Accessible at: \url{https://www.mosek.com/documentation/}. This package has been developed using version 8.1.0.23 (accessed August 29 2017).
 
-Mosek ApS (2017b). MOSEK Rmosek Package 8.1.y.z. \url{http://docs.mosek.com/8.1/rmosek/index.html}.
+Mosek ApS (2017b). MOSEK Rmosek Package 8.1.y.z. \url{https://docs.mosek.com/8.1/rmosek/index.html}.
 \emph{!!! In normal R speak, this is the documentation of the Rmosek package version 8.0.69 (or whatever comes next), when applied on top of the Mosek version 8.1.y.z (this package has been devoloped with Mosek version 8.1.0.23 and will likely not work for Mosek versions before 8.1). !!! (accessed August 29 2017)}
 
 }

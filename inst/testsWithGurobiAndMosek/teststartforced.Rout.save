@@ -1,6 +1,6 @@
 
-R version 3.4.1 (2017-06-30) -- "Single Candle"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 4.0.3 Patched (2020-12-16 r79646) -- "Bunny-Wunnies Freak Out"
+Copyright (C) 2020 The R Foundation for Statistical Computing
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,6 +17,9 @@ Type 'q()' to quit R.
 
 > require(DoE.MIParray)
 Loading required package: DoE.MIParray
+Registered S3 method overwritten by 'DoE.MIParray':
+  method   from    
+  print.oa DoE.base
 > start <- DoE.base::L16.2.8.8.1[,1:5]
 > force <- matrix(as.numeric(as.matrix(DoE.base::undesign(DoE.base::oa.design(L8.2.7)))), nrow=8)
 > 
@@ -38,7 +41,6 @@ no violation of necessary criteria  for strength  3  was found
 0 1 2 3 4 5 
 1 0 0 0 1 0 
 =======================================
-[1] 4
 Acquiring MOSEK environment
 === GWLP after optimizing A4 ===
 0 1 2 3 4 5 
@@ -46,22 +48,22 @@ Acquiring MOSEK environment
 =================================
 Releasing MOSEK environment
       [,1] [,2] [,3] [,4] [,5]
- [1,]    1    1    1    1    1
- [2,]    1    1    1    2    2
- [3,]    1    1    2    1    2
- [4,]    1    1    2    2    1
- [5,]    1    2    1    1    2
- [6,]    1    2    1    2    1
- [7,]    1    2    2    1    1
- [8,]    1    2    2    2    2
- [9,]    2    1    1    1    2
-[10,]    2    1    1    2    1
-[11,]    2    1    2    1    1
-[12,]    2    1    2    2    2
-[13,]    2    2    1    1    1
-[14,]    2    2    1    2    2
-[15,]    2    2    2    1    2
-[16,]    2    2    2    2    1
+ [1,]    1    1    1    1    2
+ [2,]    1    1    1    2    1
+ [3,]    1    1    2    1    1
+ [4,]    1    1    2    2    2
+ [5,]    1    2    1    1    1
+ [6,]    1    2    1    2    2
+ [7,]    1    2    2    1    2
+ [8,]    1    2    2    2    1
+ [9,]    2    1    1    1    1
+[10,]    2    1    1    2    2
+[11,]    2    1    2    1    2
+[12,]    2    1    2    2    1
+[13,]    2    2    1    1    2
+[14,]    2    2    1    2    1
+[15,]    2    2    2    1    1
+[16,]    2    2    2    2    2
 attr(,"class")
 [1] "oa"     "matrix"
 attr(,"origin")
@@ -110,9 +112,8 @@ $objbound
 
 >   ## counting vector representation of the start value could also be used
 > 
-> DoE.MIParray:::dToCount(start-1)
+> dToCount(start, startfrom1 = TRUE)
  [1] 1 1 0 0 0 0 1 1 0 0 1 1 1 1 0 0 0 0 1 1 1 1 0 0 1 1 0 0 0 0 1 1
->   ## "-1", because the function requires values starting with 0
 >   ## 32 elements for the full factorial in lexicographic order, 16 ones for the runs
 > 
 > ## using a start value with gurobi
@@ -131,28 +132,27 @@ no violation of necessary criteria  for strength  3  was found
 0 1 2 3 4 5 
 1 0 0 0 1 0 
 =======================================
-[1] 4
 === GWLP after optimizing A4 ===
 0 1 2 3 4 5 
 1 0 0 0 0 1 
 =================================
       [,1] [,2] [,3] [,4] [,5]
- [1,]    1    1    1    1    1
- [2,]    1    1    1    2    2
- [3,]    1    1    2    1    2
- [4,]    1    1    2    2    1
- [5,]    1    2    1    1    2
- [6,]    1    2    1    2    1
- [7,]    1    2    2    1    1
- [8,]    1    2    2    2    2
- [9,]    2    1    1    1    2
-[10,]    2    1    1    2    1
-[11,]    2    1    2    1    1
-[12,]    2    1    2    2    2
-[13,]    2    2    1    1    1
-[14,]    2    2    1    2    2
-[15,]    2    2    2    1    2
-[16,]    2    2    2    2    1
+ [1,]    1    1    1    1    2
+ [2,]    1    1    1    2    1
+ [3,]    1    1    2    1    1
+ [4,]    1    1    2    2    2
+ [5,]    1    2    1    1    1
+ [6,]    1    2    1    2    2
+ [7,]    1    2    2    1    2
+ [8,]    1    2    2    2    1
+ [9,]    2    1    1    1    1
+[10,]    2    1    1    2    2
+[11,]    2    1    2    1    2
+[12,]    2    1    2    2    1
+[13,]    2    2    1    1    2
+[14,]    2    2    1    2    1
+[15,]    2    2    2    1    1
+[16,]    2    2    2    2    2
 attr(,"class")
 [1] "oa"     "matrix"
 attr(,"origin")
@@ -197,8 +197,6 @@ $objval
 $objbound
 [1] 0
 
-Warning message:
-package 'gurobi' was built under R version 3.5.0 
 > 
 > ## extending an existing array with mosek
 > if (require(Rmosek)){
@@ -218,12 +216,10 @@ Acquiring MOSEK environment
 0 1 2 3 4 5 6 7 
 1 0 0 3 3 0 0 1 
 =======================================
-[1] 3
 === GWLP after optimizing A3 ===
 0 1 2 3 4 5 6 7 
 1 0 0 0 7 0 0 0 
 =================================
-[1] 4
 === GWLP after optimizing A4 ===
 0 1 2 3 4 5 6 7 
 1 0 0 0 7 0 0 0 
@@ -312,12 +308,10 @@ no violation of necessary criteria  for strength  2  was found
 0 1 2 3 4 5 6 7 
 1 0 0 4 3 0 0 0 
 =======================================
-[1] 3
 === GWLP after optimizing A3 ===
 0 1 2 3 4 5 6 7 
 1 0 0 0 7 0 0 0 
 =================================
-[1] 4
 === GWLP after optimizing A4 ===
 0 1 2 3 4 5 6 7 
 1 0 0 0 7 0 0 0 
@@ -415,4 +409,4 @@ $forced
 > 
 > proc.time()
    user  system elapsed 
-   3.57    0.14    3.70 
+   2.53    0.25    2.64 

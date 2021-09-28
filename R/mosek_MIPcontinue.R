@@ -14,10 +14,13 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
   # withCallingHandlers( f(5), warning = h )
   ## around mosek calls will suppress annoying warnings
 
+  detailed <- 0 ## moved up to here July 2021
   ## check inputs
   if (!("qco" %in% class(qco) || "oa" %in% class(qco))) stop("qco must be of class qco or oa")
   if (!"qco" %in% class(qco)) {
-    detailed <- 0
+    ## July 2021
+    if ("qco" %in% class(attr(qco, "MIPinfo"))) qco <- attr(qco, "MIPinfo")
+    else{
     if (!is.null(attr(qco, "history"))){
       detailed <- 1
       history <- attr(qco, "history")
@@ -26,8 +29,11 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
         detailed <- 3
       }
     }
-    qco <- attr(qco, "MIPinfo")
-  }
+      ## treatment because of different find.only cases
+      ## July 2021
+      qco <- list(info=attr(qco, "MIPinfo"))
+    }
+    }
   if (is.null(qco)) stop("invalid object qco")
   if (!is.logical(improve)) stop("improve must be logical")
   nruns <- qco$info$nruns
@@ -36,8 +42,9 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
   sl <- qco$sl
   reso <- qco$info$reso
   last.k <- qco$info$last.k
-  if (last.k==nfac && !improve){
-    warning("improve was set to TRUE, because last.k=nfac")
+  if (last.k==nfac-1 && !improve){
+    warning("improve was set to TRUE, because A_", nfac,
+            " is a consequence of earlier GWLP elements.")
     improve <- TRUE
   }
 
@@ -110,9 +117,9 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
       ## can start immediately to try further improvement
       ## increase LOWER_OBJ_CUT to current largest bound, if larger
       ##    (add small margin, because everything should be integer)
-  if (last.k == reso) 
-       qco$dparam$LOWER_OBJ_CUT <- 
-          max(sum(DoE.base:::lowerbounds(nruns, nlev, last.k)) + 0.5, 0.5)
+  if (last.k == reso)
+       qco$dparam$LOWER_OBJ_CUT <-
+          max(sum(lowerbounds(nruns, nlev, last.k)) + 0.5, 0.5)
       if (qco$info$objbound > qco$dparam$LOWER_OBJ_CUT)
         qco$dparam$LOWER_OBJ_CUT <- qco$info$objbound + 0.3
 
@@ -123,8 +130,13 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
       warning = h )
       qco$info <- hilf
       opt <- sl$sol$int$xx  ## A_last.k improved
+      if (sl$sol$int$pobjval <= qco$dparam$LOWER_OBJ_CUT)
+        sl$sol$int$solsta <- "INTEGER_OPTIMAL"  ## show user bound achievement July 2021
     }
     else{
+      ## added July 2021
+      if (last.k == nfac) stop("A", nfac, " is a consequence of earlier GWLP entries, ",
+                                "optimizing it does not make sense.")
       ## optimize the next variant
       if (qco$info$conecur){
         nc <- ncol(qco$cones)
@@ -137,8 +149,8 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
             qco <- mosek_modelLastQuadconToLinear(qco)
             if (kmax==qco$info$reso + 1) {
                qco$info$reso <- kmax
-               qco$dparam$LOWER_OBJ_CUT <- max(qco$dparam$LOWER_OBJ_CUT, 
-               sum(DoE.base:::lowerbounds(nruns, nlev, kmax)) + 0.5)
+               qco$dparam$LOWER_OBJ_CUT <- max(qco$dparam$LOWER_OBJ_CUT,
+               sum(lowerbounds(nruns, nlev, kmax)) + 0.5)
                }
             }
         else qco$bx[2, poscopt] <- vcur + 0.3
@@ -148,7 +160,7 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
      df1 <- nlev-1
      D <- ff(nlev)
      df <- 1
-     for (j in 1:nfac) df <- c(df,sum(apply(matrix(df1[DoE.base:::nchoosek(nfac,j)],nrow=j),2,prod)))
+     for (j in 1:nfac) df <- c(df,sum(apply(matrix(df1[nchoosek(nfac,j)],nrow=j),2,prod)))
      dfweg <- cumsum(df)
      Dfac <- as.data.frame(D)
      for (j in 1:ncol(Dfac)){
@@ -186,7 +198,9 @@ mosek_MIPcontinue <- function(qco, improve=TRUE,
   }
     if (!improve) cat(paste("=== GWLP after optimizing A",kmax," ===\n",sep=""))
     else cat(paste("=== GWLP after further improving A",last.k," ===\n",sep=""))
-    print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+    suppressWarnings({
+      print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+    })
     cat("=================================\n")
 
   feld <- countToDmixed(nlev, round(opt[1:N])) + 1

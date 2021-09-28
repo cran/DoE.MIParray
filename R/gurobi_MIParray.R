@@ -1,5 +1,5 @@
 gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2),
-     distinct = TRUE, detailed = 0, start=NULL, forced=NULL,
+     distinct = TRUE, detailed = 0, start=NULL, forced=NULL, find.only=FALSE,
      maxtime = 60, nthread = 2, heurist = 0.5, MIQCPMethod=0, MIPFocus=1,
      gurobi.params=list(BestObjStop=0.5, LogFile="")){
   aufruf <- sys.call()
@@ -36,6 +36,10 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
   if (kmax < 2) stop("kmax must be at least 2")
   if (kmax > nfac) stop("kmax must not be larger than the number of factors")
   if (kmax < resolution) stop("kmax must not be smaller than resolution")
+  ## added check July 2021
+  if (kmax == nfac && resolution < nfac) stop("kmax must not be larger than ", nfac - 1, ", ",
+               "because the last element A", nfac, " of the GWLP ",
+               " is a consequence of earlier elements.")
   strength <- resolution - 1
   if (!is.logical(distinct)) stop("distinct must be logical")
   if (distinct && nruns>prod(nlev)) stop("too many runs for design with distinct runs")
@@ -47,17 +51,20 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
     if (!all(start>=0)) stop("start must have non-negative elements")
     if (is.matrix(start)){
       if (!all(dim(start)==c(nruns, nfac))) stop("matrix start has wrong dimensions")
-      if (!all(DoE.base:::levels.no(start)==nlev)) stop("start and nlevels do not match")
+      if (!all(levels.no(start)==nlev)) stop("start and nlevels do not match")
       for (i in 1:length(nlev)) if (length(setdiff(start[,i],1:nlev[i]))>0)
         stop("invalid entries in column ", i, " of matrix start")
       start <- dToCount(start-1)
     }
     if (!length(start)==prod(nlev)) stop("vector start has wrong length")
     if (!sum(start)==nruns) stop("vector start is incompatible with nruns")
-    if (!round(DoE.base::GWLP(countToDmixed(nlev, start), kmax=strength), 8)[strength+1]==0)
+    suppressWarnings({
+      if (!round(DoE.base::GWLP(countToDmixed(nlev, start), kmax=strength), 8)[strength+1]==0)
       stop("resolution of start array too low")
+      })
     if (distinct && !all(start %in% c(0,1)))
-      stop("start array does comply with option distinct")
+      stop("start array does not comply with option distinct")
+      ## fixed text in May 2021, "not" was missing
   }
 
   if (!is.null(forced)){
@@ -68,7 +75,7 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
     if (is.matrix(forced)){
       if (!ncol(forced)==nfac) stop("matrix forced has wrong number of columns")
       if (nrow(forced)>=nruns) stop("matrix forced has too many rows")
-      if (!all(DoE.base:::levels.no(forced)==nlev)) stop("forced and nlevels do not match")
+      if (!all(levels.no(forced)<=nlev)) stop("forced and nlevels do not match")
       for (i in 1:length(nlev)) if (length(setdiff(forced[,i],1:nlev[i]))>0)
         stop("invalid entries in column ", i, " of matrix forced")
       forced <- dToCount(forced-1)
@@ -76,7 +83,8 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
     if (!length(forced)==prod(nlev)) stop("vector forced has wrong length")
     if (!sum(forced)<nruns) stop("vector forced fixes all runs", "use start for a start array")
     if (distinct && !all(forced %in% c(0,1)))
-      stop("forced array does comply with option distinct")
+      stop("forced array does not comply with option distinct")
+      ## fixed text in May 2021, "not" was missing
   }
 
   if (!is.list(gurobi.params)) stop("gurobi.params must be a named list")
@@ -137,7 +145,7 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
   D <- ff(nlev)
   df <- 1
   for (j in 1:nfac)
-    df <- c(df,sum(apply(matrix(df1[DoE.base:::nchoosek(nfac,j)],nrow=j),2,prod)))
+    df <- c(df,sum(apply(matrix(df1[nchoosek(nfac,j)],nrow=j),2,prod)))
   dfweg <- cumsum(df)
   Dfac <- as.data.frame(D)
   for (j in 1:ncol(Dfac)){
@@ -243,6 +251,13 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
       opt <- sl$x     ## either A1 minimized or strength enforced
       vcur <- round(opt[1:N])%*%Hs[[max(1,strength)]]%*%round(opt[1:N])
            ## first optimum, likely 0
+      ## July 2021
+      stop.initial.optimal <- FALSE
+      vreso <- round(opt[1:N])%*%Hs[[resolution]]%*%round(opt[1:N])  ## for checking optimality
+      if (vreso <  sum(lowerbounds(nruns, nlev, resolution)) + 0.5 && kmax <= resolution){
+           find.only <- TRUE
+           stop.initial.optimal <- TRUE
+      }
   }
 
   vhistory <- list(objective=vcur, counts=cbind(opt[1:N]))
@@ -253,18 +268,20 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
      if (is.null(start)) cat("=== GWLP after enforcing resolution ===\n")
     else cat("=== GWLP of start array ===\n")
   }
-  print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+  suppressWarnings({
+    print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+  })
   cat("=======================================\n")
 
   ## initial step completed
 
   ## loop over further steps
   from <- resolution
+  if (find.only) kmax <- resolution
   if (strength==0) from <- 2
   if (!kmax < from ){
     #for kmax==1 and strength==0, optimization is already finished
   for (kk in from:kmax){
-    print(kk)
     ## remove cone constraint in case of previous vcur = 0
     if (vcur==0){
       qco1 <- gurobi_modelLastQuadconToLinear(qco1)   ## should not change initial model,
@@ -294,11 +311,19 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
     nvar <- as.integer(ncol(qco1$A))   #update nvar
 
     probs[[kk]] <- qco1
+    ## July 2021
+     if (find.only){
+       ### not all aspects of this solution match the problem
+       if (!stop.initial.optimal) sl$status <- "TIME_LIMIT" else sl$status <- "OPTIMAL"
+       sl$x <- qco1$start
+       sols[[kk]] <- sl
+    }
+    else{
     #gurobi_rsave(qco1, qco1$start)
     if (kk==qco1$info$reso) {
       ## use updated resolution, if zeroes occurred
       hilf <- params$BestObjStop
-      bound <- sum(DoE.base:::lowerbounds(nruns, nlev, kk)) + 0.5
+      bound <- sum(lowerbounds(nruns, nlev, kk)) + 0.5
       params$BestObjStop <- max(hilf, bound)
     }
     sl <- gurobi::gurobi(qco1, params=params)
@@ -308,16 +333,21 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
         sl$status <- "OPTIMAL"  ## better use a different word for distinguishing from Gurobi-confirmed?
     }
         sols[[kk]] <- sl
-
+    }
     opt <- sl$x         ## optimized for A_kk
     vcur <- round(opt[1:N])%*%Hs[[kk]]%*%round(opt[1:N])  ## A_kk=vcur/nruns^2
     vhistory$objective <- c(vhistory$objective, vcur)     ## can eventually disappear
     vhistory$counts <- cbind(vhistory$counts, opt[1:N])   ## can eventually disappear
+    if (!find.only){
     cat(paste("=== GWLP after optimizing A",kk," ===\n",sep=""))
-    print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+      suppressWarnings({
+        print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+      })
           cat("=================================\n")
+    }
   }  ## end of loop over kk
   }
+
   feld <- countToDmixed(nlev, round(opt[1:N])) + 1
   if (!is.null(forced)){
     ## make sure it is known which rows were forced into the array
@@ -336,8 +366,14 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
   class(feld) <- c("oa", "matrix")
   attr(feld, "origin") <- list(package="DoE.MIParry", call=aufruf)
   status <- lapply(sols, function(obj) obj$status)  ## list
+
+
   names(status)[1] <- paste("A1to",strength,sep="")
-  names(status)[resolution:kmax] <- paste("A",resolution:kmax,sep="")
+  ## check whether special treatment for k=1 is needed
+  if (find.only)
+    names(status)[resolution] <- paste0("A", resolution)
+  else
+    names(status)[resolution:kmax] <- paste("A",resolution:kmax,sep="")
   namdetail <- names(status)
   status <- unlist(status[sapply(status, function(obj) !is.null(obj))]) ## vector
   status[is.na(status)] <- "UNKNOWN"               ## gurobi sometimes returns NA
@@ -360,12 +396,17 @@ gurobi_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2
 
   if (kmax < nfac || !laststatus == "OPTIMAL")
        attr(feld, "MIPinfo") <- ausqco1
+  else
+       attr(feld, "MIPinfo") <- ausqco1$info ## moved here May 2021
+
   if (length(setdiff(status, c("OPTIMAL","USER_OBJ_LIMIT"))) > 0){
     if (laststatus=="OPTIMAL"){
-      warning("Even though the last step yielded a confirmed optimum, ", "a previous step did not.")
-    attr(feld, "MIPinfo") <- ausqco1$info
+      warning("Even though the last step yielded a confirmed optimum, ",
+              "a previous step did not.")
     }
   }
+  if (find.only) if (stop.initial.optimal) message(paste0("The initial enforcement of resolution ",
+                                           "yielded the optimal A", resolution, "."))
   if (detailed) {
     names(probs) <- namdetail
     names(sols) <- namdetail

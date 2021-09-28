@@ -18,7 +18,7 @@ These functions from DoE.base are exported from DoE.MIParray,
 because they are especially important for its use.
 }
 \usage{
-oa_feasible(nruns, nlevels, strength = 2, verbose=TRUE)
+oa_feasible(nruns, nlevels, strength = 2, verbose = TRUE, returnbound = FALSE)
 lowerbound_AR(nruns, nlevels, R, crit = "total")
 length2(design, with.blocks = FALSE, J = FALSE)
 length3(design, with.blocks = FALSE, J = FALSE, rela = FALSE)
@@ -36,6 +36,7 @@ ICFTs(design, digits = 3, resk.only = TRUE, kmin = NULL, kmax = ncol(design),
   \item{nlevels}{see \pkg{\link{DoE.base}}}
   \item{strength}{see \pkg{\link{DoE.base}}}
   \item{verbose}{see \pkg{\link{DoE.base}}}
+  \item{returnbound}{see \pkg{\link{DoE.base}}}
   \item{R}{see \pkg{\link{DoE.base}}}
   \item{crit}{see \pkg{\link{DoE.base}}}
   \item{design}{see \pkg{\link{DoE.base}}}

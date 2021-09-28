@@ -15,8 +15,7 @@ if (require(Rmosek)){
   }}
   ## counting vector representation of the start value could also be used
 
-DoE.MIParray:::dToCount(start-1)
-  ## "-1", because the function requires values starting with 0
+dToCount(start, startfrom1 = TRUE)
   ## 32 elements for the full factorial in lexicographic order, 16 ones for the runs
 
 ## using a start value with gurobi

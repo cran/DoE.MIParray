@@ -2,12 +2,15 @@
 import(stats)
 import(methods)
 importFrom(combinat, "permn")
+importFrom("utils", "write.table")
 import(DoE.base, except=c("lm", "aov", "lm.design", "aov.design", "lm.formula", "aov.formula"))
 export("gurobi_MIParray", "mosek_MIParray",
-       "gurobi_MIPcontinue", "mosek_MIPcontinue", "lowerbound_AR", 
+       "gurobi_MIPcontinue", "mosek_MIPcontinue", "lowerbound_AR",
        "mosek_MIPsearch","gurobi_MIPsearch","print.oa",
-       "oa_feasible", "GWLP", "ICFTs", "SCFTs", 
+       "create_ILPlist","write_MPSILPlist","write_MPSMIQP",
+       "ff", "dToCount", "countToDmixed",
+       "oa_feasible", "GWLP", "ICFTs", "SCFTs",
        "length2", "length3", "length4", "length5", "contr.XuWu")
 ## the master documentation of print.oa is in DoE.base
 ## but a copy must be kept here
-S3method(print, oa)   
+S3method(print, oa)

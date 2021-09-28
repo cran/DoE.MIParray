@@ -1,19 +1,56 @@
 Changes to package DoE.MIParray
 
+Version 1.0, September 2021
+- added an argument find.only (default FALSE for backward compatibility) to
+  mosek_MIParray and gurobi_MIParray; find.only=TRUE permits to search
+  for an array with the requested resolution only, without attempting
+  to improve A_R; thus, difficult cases can be handled without being forced
+  to spend "maxtime" a second time on a doomed attempt at improvement
+- suppressed warnings (because of too many levels) of GWLP for calls from within package functions
+- prevented optimization attempts of A_nfac,
+  because A_nfac is a consequence of the earlier A_j values
+- mosek_MIParray and gurobi_MIParray:
+  fixed early stop in case an optimal array (confirmed by overall bound
+  from lowerbounds()) is found while enforcing the resolution
+- gurobi_MIPcontinue and mosek_MIPcontinue: fixed early stop
+  (was implemented for mosek_MIPcontinue only,
+  where it did not adjust the status indicator)
+- mosek_MIPsearch and gurobi_MIPsearch:
+  - improved automatic stop,
+  - properly implemented forced runs,
+  - added the find.only argument (with default TRUE)
+  - and removed start values (because they do not make sense).
+- added function create_ILPlist
+for creating a list of integer linear problems
+  in Mosek format (mainly for use in a write function, see next bullet)
+- added functions write_MPSILP (internal, used in write_MPSILPlist) and write_MPSILPlist for writing a single linear problem
+  or a list of linear problems in the universal MPS format,
+- added functions create_MIQP (internal, used in write_MPSMIQP) and write_MPSMIQP for exporting a quadratic optimization problem
+  in MPS format (using the section QUADOBJ that is supported at least by Mosek,
+  Gurobi and IBM CPLEX)
+- added references to the documentation
+- functions ff, dToCount and countToDmixed are now exported and thus documented,
+  and dToCount gained a new argument nlevels
+- documentation for oa_feasible adapted to change in DoE.base
+- fixed print.oa versus the version from DoE.base, because the latter
+  prints "\n" instead of breaking the line for oa objects produced by
+  DoE.MIParray
+- added test cases for the new functionality
+
 Version 0.13, July 2019
 - edited several documentation files to include references to the search functionality
-- added information regarding the new Mosek parameter MSK_IPAR_MIO_SEED (from Mosek version 9), 
-  which allows to modify the search path by different random number initializations 
+- added information regarding the new Mosek parameter MSK_IPAR_MIO_SEED (from Mosek version 9),
+  which allows to modify the search path by different random number initializations
   (default 42)
 - documented class qco and linked to the documentation for class oa
 - added more detail on Rmosek package versions to the installation instructions
   for Rmosek, and updated Description to reflect availability of Rmosek on CRAN
-- moved the print.oa function to package DoE.base 
+- moved the print.oa function to package DoE.base
   (but kept a duplicate of the documentation, because of error otherwise)
 - removed obsolete internal functions gurobi_rsave, mosek_rsave, and countToD
 
 Version 0.12, March 2019
-- added search functions for searching over factor orders (performance may 
+- added search functions for searching over factor orders (performance may
   strongly depend on the factor order)
 - added print.oa to remove all attributes except a few specific ones
 - added contr.XuWu to exports
@@ -21,11 +58,11 @@ Version 0.12, March 2019
 - updated information on availability of Rmosek
 
 Version 0.11, March 2018
-- modified gurobi_MIPcontinue and mosek_MIPcontinue to use the lower bounds for A_R, 
+- modified gurobi_MIPcontinue and mosek_MIPcontinue to use the lower bounds for A_R,
   where possible
 - removed lowerbound_AR and relatives, because these are now in DoE.base 0.32
 - export a few central quality criteria / equivalence checking functions from DoE.base
-- changed wording in Description so that a CRAN version of Rmosek is no longer implied 
+- changed wording in Description so that a CRAN version of Rmosek is no longer implied
   (since Rmosek will be removed from CRAN according to its maintainer)
 
 Version 0.10, September 26 2017
@@ -38,7 +75,7 @@ Version 0.9, September 22 2017
   based on Liu and Lin 2009
 
 Version 0.8, September 04 2017
-- incorporated bound for A_R from Grömping and Xu (2014) Theorem 5
+- incorporated bound for A_R from Gr?mping and Xu (2014) Theorem 5
   into gurobi_MIParray and mosek_MIParray; this allows to avoid potentially
   lengthy confirmations of optimality, where all R factor projections have weak strength R.
   Initially, the functions lowerbounds and lowerbound_AR are included here;

@@ -14,14 +14,14 @@ for each order.
 \usage{
 mosek_MIPsearch(nruns, nlevels, resolution = 3, maxtime = 60, 
    stopearly=TRUE, listout=FALSE, orders=NULL, 
-   distinct = TRUE, detailed = 0, start=NULL, forced=NULL,
+   distinct = TRUE, detailed = 0, forced=NULL, find.only=TRUE,
    nthread=2, mosek.opts = list(verbose = 1, soldetail = 1),
    mosek.params = list(dparam = list(LOWER_OBJ_CUT = 0.5, MIO_TOL_ABS_GAP = 0.2,
       INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07),
       iparam = list(PRESOLVE_LINDEP_USE="OFF", LOG_MIO_FREQ=100)))
 gurobi_MIPsearch(nruns, nlevels, resolution = 3, maxtime = 60, 
    stopearly=TRUE, listout=FALSE, orders=NULL, 
-   distinct = TRUE, detailed = 0, start=NULL, forced=NULL,
+   distinct = TRUE, detailed = 0, forced=NULL, find.only=TRUE, 
    nthread = 2, heurist=0.5, MIQCPMethod=0, MIPFocus=1,
    gurobi.params = list(BestObjStop = 0.5, OutputFlag=0))
 }
@@ -55,13 +55,12 @@ logical; if TRUE (default), restricts counting vector to 0/1 entries, which mean
   \item{detailed}{
 integer (default 0); determines the output detail: positive values imply inclusion of a problem and solution history (attribute \code{history}), values of at least 3 add the lists of optimization matrices (Us and Hs, attribute \code{matrices}).
 }
-  \item{start}{
-for \code{resolution > 1} only;\cr
-a starting value for the algorithm: can be a array matrix with entries 1 to number of levels for each column, or a counting vector for the full factorial in lexicographic order; if specified, \code{start} must specify an array with the appropriate number of rows and columns, the requested resolution and, if \code{distinct = TRUE}, also contain distinct rows (matrix) or 0/1 elements only.
-}
   \item{forced}{
 for \code{resolution > 1} only;\cr
 runs to force into the solution design; can be given as an array matrix with the appropriate number of columns and less than \code{nruns} rows or a counting vector for the full factorial in lexicographic order with sum smaller than \code{nruns}; if \code{distinct=TRUE}, \code{forced} must have distinct rows (matrix) or 0/1 elements only.
+}
+  \item{find.only}{
+logical; if TRUE (default), the function only attempts to find an array of the requested resolution, without optimizing word lenghts; otherwise, a design of the requested resolution is found, which is subsequently improved in terms of its word lengths up to words of length \code{kmax}.
 }
   \item{nthread}{
 the number of threads (=cores) to use;
@@ -150,6 +149,8 @@ Ulrike Groemping
 
 \references{
 Groemping, U. and Fontana R. (2019). An Algorithm for Generating Good Mixed Level Factorial Designs. \emph{Computational Statistics & Data Analysis} \bold{137}, 101-114.
+
+Groemping, U. (2020). DoE.MIParray: an R package for algorithmic creation of orthogonal arrays. \emph{Journal of Open Research Software}, \bold{8: 24}. DOI: https://doi.org/10.5334/jors.286
 }
 \seealso{
 See also \code{\link{mosek_MIParray}} and \code{\link{gurobi_MIParray}},

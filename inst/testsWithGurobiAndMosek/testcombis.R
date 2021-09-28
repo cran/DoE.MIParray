@@ -33,7 +33,7 @@ if (require(Rmosek)){
 if (require(Rmosek)){
   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
     ## mosek with several steps of optimization also of non-zero A-values
-    aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=5,maxtime=100,
+    aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=4,maxtime=100,
                           mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
                                                           MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
                                                           INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
@@ -95,7 +95,7 @@ if (require(gurobi)){
 
 ## gurobi with several steps of optimization also with non-zero A-values
 if (require(gurobi)){
-  aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=5,maxtime=100,
+  aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=4,maxtime=100,
                          gurobi.params = list(OutputFlag=0))
   MIPinfo <- attr(aus, "MIPinfo")
   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output

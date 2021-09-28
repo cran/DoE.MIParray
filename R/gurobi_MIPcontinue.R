@@ -6,10 +6,13 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
   ## the maxtime option refers to time available for for each WLP entry optimization from resolution to kmax
   ## it is in principle possible to interrupt the process and keep the result, but unstable sitautions may occur
 
+  detailed <- 0 ## moved up to here July 2021
   ## check inputs
   if (!("qco" %in% class(qco) || "oa" %in% class(qco))) stop("qco must be of class qco or oa")
   if (!"qco" %in% class(qco)) {
-    detailed <- 0
+    ## July 2021
+    if ("qco" %in% class(attr(qco, "MIPinfo"))) qco <- attr(qco, "MIPinfo")
+    else{
     if (!is.null(attr(qco, "history"))){
       detailed <- 1
       history <- attr(qco, "history")
@@ -18,8 +21,11 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
         detailed <- 3
       }
     }
-    qco <- attr(qco, "MIPinfo")
-  }
+    ## treatment because of different find.only cases
+    ## July 2021
+    qco <- list(info=attr(qco, "MIPinfo"))
+    }
+    }
   if (is.null(qco)) stop("invalid object qco")
   if (!is.logical(improve)) stop("improve must be logical")
   nruns <- qco$info$nruns
@@ -27,8 +33,9 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
   nfac <- length(nlev)
   reso <- qco$info$reso
   last.k <- qco$info$last.k
-  if (last.k==nfac && !improve){
-    warning("improve was set to TRUE, because last.k=nfac")
+  if (last.k==nfac-1 && !improve){
+    warning("improve was set to TRUE, because A_", nfac,
+            " is a consequence of earlier GWLP elements.")
     improve <- TRUE
   }
   ## refuse to improve, if already optimal
@@ -112,12 +119,18 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
     ## can start immediately to try further improvement
     ## increase BestObjStop to current largest bound, if larger
     ##    (add small margin, because everything should be integer)
+    ## incorporate lower bound, if last.k == reso
+    if (last.k==reso) params$BestObjStop <-
+        sum(lowerbounds(nruns, nlev, reso)) + 0.3
     if (qco$info$objbound > params$BestObjStop)
         params$BestObjStop <- qco$info$objbound + 0.3
     sl <- gurobi::gurobi(qco, params=params)
     opt <- sl$x  ## A_last.k improved
   }
   else{
+      ## added July 2021
+      if (last.k == nfac) stop("A", nfac, " is a consequence of earlier GWLP entries, ",
+                                "optimizing it does not make sense.")
     ## optimize the next variant
     if (qco$info$conecur){
       nc <- length(qco$quadcon)
@@ -128,8 +141,8 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
          qco <- gurobi_modelLastQuadconToLinear(qco)
          if (kmax==qco$info$reso + 1) {
             qco$info$reso <- kmax
-            params$BestObjStop <- max(params$BestObjStop, 
-                sum(DoE.base:::lowerbounds(nruns, nlev, kmax)) + 0.5)
+            params$BestObjStop <- max(params$BestObjStop,
+                sum(lowerbounds(nruns, nlev, kmax)) + 0.5)
          }
       }
       else qco$ub[poscopt] <- vcur + 0.3   ## ensure that A_last.k cannot deteriorate
@@ -139,7 +152,7 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
     D <- ff(nlev)
     df <- 1
     for (j in 1:nfac)
-      df <- c(df,sum(apply(matrix(df1[DoE.base:::nchoosek(nfac,j)],nrow=j),2,prod)))
+      df <- c(df,sum(apply(matrix(df1[nchoosek(nfac,j)],nrow=j),2,prod)))
     dfweg <- cumsum(df)
     Dfac <- as.data.frame(D)
     for (j in 1:ncol(Dfac)){
@@ -177,7 +190,9 @@ gurobi_MIPcontinue <- function(qco, improve=TRUE,
 
     if (!improve)  cat(paste("=== GWLP after minimizing A",kmax,"===\n",sep=""))
     else            cat(paste("=== GWLP after further improving A",last.k," ==========\n",sep=""))
+  suppressWarnings({
     print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+  })
     cat("=======================================\n")
 
   feld <- countToDmixed(nlev, round(opt[1:N])) + 1

@@ -5,23 +5,24 @@
 Package to Create a MIP Based Array
 }
 \description{
-The package creates an array with specified minimum resolution and optimized word length pattern, using mixed integer programming (MIP). It requires the presence of at least one of the commercial softwares Gurobi (free academic license available, R package gurobi included with the software) or Mosek (free academic license available, outdated CRAN package Rmosek must be updated with current version provided by vendor). Arrays can be created from scratch, or using a user-specified starting array, or extending an existing array.
+'CRAN' packages 'DoE.base' and 'Rmosek' and non-'CRAN' package 'gurobi' are enhanced with functionality for the creation of optimized arrays for experimentation, where optimization is in terms of generalized minimum aberration. It is also possible to optimally extend existing arrays to larger run size. The package writes 'MPS' (Mathematical Programming System) files for use with any mixed integer optimization software that can process such files. If at least one of the commercial products 'Gurobi' or 'Mosek' (free academic licenses available for both) is available, the package also creates arrays by optimization. For installing 'Gurobi' and its R package 'gurobi', follow instructions at <https://www.gurobi.com/products/gurobi-optimizer/> and <https://www.gurobi.com/documentation/7.5/refman/r_api_overview.html> (or higher version). For installing 'Mosek' and its R package 'Rmosek', follow instructions at <https://www.mosek.com/downloads/> and <https://docs.mosek.com/8.1/rmosek/install-interface.html>, or use the functionality in the stump CRAN R package 'Rmosek'.
 }
 \details{
-The package implements generalized minimum aberration (GMA) according to Xu and Wu (2001), which is a way to minimize the confounding potential in a factorial design, as measured by the generalized word length pattern (GWLP). Reduction of short words has priority over reduction of long words, because it pertains to confounding of lower order interactions, which is assumed to be more severe than confounding of higher order interactions.
+The package creates an array with specified minimum resolution and optimized word length pattern, using mixed integer programming (MIP). This is a step in
+generalized minimum aberration (GMA) according to Xu and Wu (2001), which is a way to minimize the confounding potential in a factorial design, as measured by the generalized word length pattern (GWLP). Reduction of short words has priority over reduction of long words, because it pertains to confounding of lower order interactions, which is assumed to be more severe than confounding of higher order interactions.
 
 There is always one word of length zero. An array is said to have strength t (resolution R=t+1), if it has no words of lengths 1,...,t, but has words of length R=t+1; in that case, t-factor interactions are not confounded with the overall mean, (t-1)-factor interactions are not confounded with main effects, and so forth. Groemping and Xu (2014) provided an interpretation of the number of shortest words (i.e. words of length R) in terms of coefficients of determination of linear models with main effects model matrix columns on the LHS and full factorial t-factor models on the right-hand side; for example, in an array of strength 2 with three 3-level factors, the number of words of length 3 is the sum of the two R^2 values obtained from regressing the two main effects model matrix columns of one of the factors on a full model in the other two factors, provided main effect model matrix columns are coded orthogonally (to each other and the overall mean). GMA considers a design better than another one, if it has larger strength or resolution. In case of ties, a design is better if it has fewer shortest words; further ties are resolved by comparing words of lengths t+2, t+3, ...
 
-Any array found by a function of this package will have the requested resolution (if not possible, an error will be thrown), and optimization of the number of shortest words will be attempted. If \code{kmax} is chosen larger than the resolution, optimization of longer words will also be attempted. Mixed integer optimization is very resource-intensive and often fails to provide a confirmed optimum (see also below). Choosing \code{kmax} larger than the resolution is therefore advisable for very small problems only; in most cases, one should attempt an optimization of the number of shortest words only. Only after this has been achieved, possibly with several sequential attempts, a subsequent attempt to improve the number of longer words should be undertaken.
+Any array found by a function of this package will have the requested resolution (if not possible, an error will be thrown). If desired (default, but can be suppressed), optimization of the number of shortest words will be attempted. If \code{kmax} is chosen larger than the resolution, optimization of longer words will also be attempted. Mixed integer optimization is very resource-intensive and often fails to provide a confirmed optimum (see also below). Choosing \code{kmax} larger than the resolution is therefore advisable for very small problems only; in most cases, one should attempt an optimization of the number of shortest words only, or even suppress that by \code{find.only=TRUE}. Only after this has been achieved, possibly with several sequential attempts, a subsequent attempt to improve the number of longer words should be undertaken.
 
 Functions \code{\link{gurobi_MIParray}} and \code{\link{mosek_MIParray}} create an array from scratch (\code{start=NULL} and \code{forced=NULL}), by trying to improve a starting array specified with the argument \code{start}, or by restricting a portion of the array to correspond to a pre-existing array with the argument \code{forced}. If no starting array is given, the functions initially obtain one by solving a linear optimization problem for obtaining a design with the requested resolution. Subsequently, the number of shortest words of the starting array is optimized, followed by the numbers of words of length up to \code{kmax}.
 
 Where functions \code{\link{gurobi_MIParray}} and \code{\link{mosek_MIParray}} do not easily find an optimal array, it may be worthwhile to consider using functions \code{\link{gurobi_MIPsearch}} and \code{\link{mosek_MIPsearch}}, which can search over different orderings of the factor levels; these have been provided because a brief search for a fortunate level orderings may be successful where a very long search for an unfortunate level ordering fails.
 
-The strategy used in the package is a modification of Fontana (2017). Modifications include enforcing the requested resolution via a linear optimization step (much faster than sequentially optimizing all those word lengths until they are zeroes), and using a result on coding invariance from Groemping (2018) for a more parsimonious formulation of constraints. Mixed integer programming can use a lot of time and resources; in particular, the confirmation of the optimality of a solution that has been found can take prohibitively long, even if the optimal solution itself has been found fast (which is also not necessarily so). Functions \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}} can be used to continue optimization for larger problems,
-where optimization was previously aborted, e.g. due to a time limit (however, a lot of effort is lost and has to be repeated when continuing a previous attempt). Note that it is possible to continue an optimization effort started with Gurobi using Mosek and vice versa, because the functions \code{gurobi_MIPcontinue} and \code{mosek_MIPcontinue} can convert problems using the internal functions \code{\link{mosek2gurobi}} and \code{\link{gurobi2mosek}}. 
+The algorithm implemented in the package is explained in Groemping and Fontana (2019); it is a modification of Fontana (2017). Modifications include enforcing the requested resolution via a linear optimization step (much faster than sequentially optimizing all those word lengths until they are zeroes), and using a result on coding invariance from Groemping (2018) for a more parsimonious formulation of constraints. Mixed integer programming can use a lot of time and resources; in particular, the confirmation of the optimality of a solution that has been found can take prohibitively long, even if the optimal solution itself has been found fast (which is also not necessarily so). Functions \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}} can be used to continue optimization for larger problems,
+where optimization was previously aborted, e.g. due to a time limit (however, a lot of effort is lost and has to be repeated when continuing a previous attempt). Note that it is possible to continue an optimization effort started with Gurobi using Mosek and vice versa, because the functions \code{gurobi_MIPcontinue} and \code{mosek_MIPcontinue} can convert problems using the internal functions \code{\link{mosek2gurobi}} and \code{\link{gurobi2mosek}}. Groemping (2020) explains the package itself.
 
-
+The solver functions in the package use the commercial solvers Mosek and/or Gurobi, which provide free academic licenses. These solvers and their corresponding vendor-provided R packages have to be installed for using the package's solver functions. For users who do not have access to these but to other solvers, the package provides export functions to mps files that can be read by other solvers, for example by IBM CPLEX (\code{\link{write_MPSMIQP}}, \code{\link{write_MPSILPlist}}).
 }
 
 \references{
@@ -33,11 +34,13 @@ Groemping, U. (2018). Coding Invariance in Factorial Linear Models and a New Too
 
 Groemping, U. and Fontana R. (2019). An Algorithm for Generating Good Mixed Level Factorial Designs. \emph{Computational Statistics & Data Analysis} \bold{137}, 101-114.
 
-Gurobi Optimization Inc. (2018). Gurobi Optimizer Reference Manual. \url{http://www.gurobi.com/documentation/}.
+Groemping, U. (2020). DoE.MIParray: an R package for algorithmic creation of orthogonal arrays. \emph{Journal of Open Research Software}, \bold{8: 24}. DOI: https://doi.org/10.5334/jors.286
+
+Gurobi Optimization Inc. (2018). Gurobi Optimizer Reference Manual. \url{https://www.gurobi.com:443/documentation/}.
 
 Mosek ApS (2017a). MOSEK version w.x.y.z documentation. Accessible at: \url{https://www.mosek.com/documentation/}. This package has been developed using version 8.1.0.23 (accessed August 29 2017).
 
-Mosek ApS (2017b). MOSEK Rmosek Package 8.1.y.z. \url{http://docs.mosek.com/8.1/rmosek/index.html}.
+Mosek ApS (2017b). MOSEK Rmosek Package 8.1.y.z. \url{https://docs.mosek.com/8.1/rmosek/index.html}.
 \emph{!!! In normal R speak, this is the documentation of the Rmosek package version 8.0.69, when applied on top of the Mosek version 8.1.y.z (this package has been devoloped with Mosek version 8.1.0.23 and will likely not work for Mosek versions before 8.1). !!! (accessed August 29 2017)}
 
 Xu, H. and Wu, C.F.J. (2001). Generalized minimum aberration for asymmetrical fractional factorial designs. \emph{Annals of Statistics} \bold{29}, 549-560.
@@ -48,7 +51,7 @@ The package is not meant for situations, for which a full factorial design would
 }
 \section{Warning}{
 Escaping from a Gurobi run will most likely be unsuccessful, might leave R in an unstable state, and usually fails to release the entire CPU usage; thus, one should think carefully about the affordable run times. \cr
-Mosek can usually be escaped using the <ESC> key, and one can even hope to get a valid output. 
+Mosek can usually be escaped using the <ESC> key, and one can even hope to get a valid output.
 However, after such escapes, it is also advisable to use \pkg{RMosek}'s internal clean function
 (\code{Rmosek:::mosek_clean()}), since computer instabilities after repeated escapes from Mosek have been observed
 (the package functions execute the \code{mosek_clean} command after conducting Mosek runs).
@@ -60,31 +63,26 @@ Both Gurobi and Mosek provide R packages (\pkg{gurobi} and \pkg{Rmosek}) for acc
 
 For Gurobi, the R package \pkg{gurobi} is provided with the software installation files and can simply be installed like usual for a non-Web package.
 
-For Mosek, there is a CRAN package \pkg{Rmosek}, which is a stump only and can be used for installing the suitable package \pkg{Rmosek} from the Mosek website. 
-Its installation requires compilation from source.  Several prerequisites are needed, basically the same ones needed for compiling packages. 
-Make sure to set up the R environment for this purpose (for Windows, see \url{https://cran.r-project.org/bin/windows/Rtools/}; you may have to set some paths yourself; 
-I am not familiar with the proper process for other platforms).  If this is accomplished and package \pkg{Matrix} is at the latest level (as recommended in the \pkg{Rmosek} 
-online documentation), install the CRAN package \pkg{Rmosek}, whose purpose it is to support installation of the appropriate \pkg{Rmosek} package for your platform and Mosek version. 
-Once this CRAN package is available, run function \code{mosek_attachbuilder}, specifying the appropriate path as 
-pointed out in the function's documentation, and subsequently run the custom-made function \code{install.rmosek}.  After this activity (if all went well), the CRAN package \pkg{Rmosek} 
-will have been replaced by a working version of package \pkg{Rmosek} whose version number depends on your version of Mosek.  In case of problems, 
-running the \code{install.packages} command provided in the \pkg{Rmosek} online documentation for your version of Mosek (Mosek ApS 2017b) may also be worth a try; 
+For Mosek, there is a CRAN package \pkg{Rmosek}, which is a stump only and can be used for installing the suitable package \pkg{Rmosek} from the Mosek website.
+Its installation requires compilation from source.  Several prerequisites are needed, basically the same ones needed for compiling packages.
+Make sure to set up the R environment for this purpose (for Windows, see \url{https://cran.r-project.org/bin/windows/Rtools/}; you may have to set some paths yourself;
+I am not familiar with the proper process for other platforms).  If this is accomplished and package \pkg{Matrix} is at the latest level (as recommended in the \pkg{Rmosek}
+online documentation), install the CRAN package \pkg{Rmosek}, whose purpose it is to support installation of the appropriate \pkg{Rmosek} package for your platform and Mosek version.
+Once this CRAN package is available, run function \code{mosek_attachbuilder}, specifying the appropriate path as
+pointed out in the function's documentation, and subsequently run the custom-made function \code{install.rmosek}.  After this activity (if all went well), the CRAN package \pkg{Rmosek}
+will have been replaced by a working version of package \pkg{Rmosek} whose version number depends on your version of Mosek.  In case of problems,
+running the \code{install.packages} command provided in the \pkg{Rmosek} online documentation for your version of Mosek (Mosek ApS 2017b) may also be worth a try;
 if all else fails, you may have to contact \pkg{Rmosek} support.
 
-Don't be confused by Mosek ApS's somewhat strange communication regarding the package \pkg{Rmosek}: the CRAN version (stump for the purpose of supporting installation of the working version) 
-has its own separate numbering that currently starts with \dQuote{1}. The working \pkg{Rmosek} packages have version numbers whose first digit is kept in sync with the Mosek major version number; 
-apart from that, version numbers of \pkg{Rmosek} versions and Mosek versions are not kept in sync; for example, the current version (July 13 2019) of package Rmosek for Mosek 
-version 8 is 8.0.69, while the Mosek version is 8.1.0.81 (the revision versions of Mosek change quite frequently).  Whenever Mosek itself is re-installed (at least with a change of minor version 
-like 8.0 to 8.1), the \pkg{Rmosek} sources must be re-compiled, even if their version has not changed; 
-this is presumably why Mosek ApS speak of a version number for the binary that corresponds to the Mosek version number, while the sources keep their version number 
+Don't be confused by Mosek ApS's somewhat strange communication regarding the package \pkg{Rmosek}: the CRAN version (stump for the purpose of supporting installation of the working version)
+has its own separate numbering that currently starts with \dQuote{1}. The working \pkg{Rmosek} packages have version numbers whose first digit is kept in sync with the Mosek major version number;
+apart from that, version numbers of \pkg{Rmosek} versions and Mosek versions are not kept in sync; for example, the current version (July 13 2019) of package Rmosek for Mosek
+version 8 is 8.0.69, while the Mosek version is 8.1.0.81 (the revision versions of Mosek change quite frequently).  Whenever Mosek itself is re-installed (at least with a change of minor version
+like 8.0 to 8.1), the \pkg{Rmosek} sources must be re-compiled, even if their version has not changed;
+this is presumably why Mosek ApS speak of a version number for the binary that corresponds to the Mosek version number, while the sources keep their version number
 (somewhat confusing for the R community).  From within R, version numbers can be queried by \code{packageVersion("Rmosek")} and \code{Rmosek::mosek_version()}, respectively.}
 \author{
 Ulrike Groemping
-}
-
-\seealso{
-See also as \code{\link{gurobi_MIParray}}, \code{\link{mosek_MIParray}}, \code{\link{gurobi_MIPsearch}}, \code{\link{mosek_MIPsearch}}, \code{\link{gurobi_MIPcontinue}} and \code{\link{mosek_MIPcontinue}}. Furthermore, the following links from package \pkg{DoE.base} are of interest:
-\code{\link[DoE.base]{show.oas}} queries catalogued orthogonal arrays and \code{\link[DoE.base]{oa_feasible}} carries out feasibility checks for runs, levels and strength requirements.
 }
 \examples{
 \dontrun{

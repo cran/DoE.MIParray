@@ -1,6 +1,6 @@
 
-R version 3.4.1 (2017-06-30) -- "Single Candle"
-Copyright (C) 2017 The R Foundation for Statistical Computing
+R version 4.0.3 Patched (2020-12-16 r79646) -- "Bunny-Wunnies Freak Out"
+Copyright (C) 2020 The R Foundation for Statistical Computing
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -43,7 +43,6 @@ Acquiring MOSEK environment
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =======================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
@@ -92,9 +91,8 @@ $objbound
 Acquiring MOSEK environment
 === GWLP after minimizing A1 ==========
     0     1     2     3     4     5 
-1.000 0.000 1.056 1.167 0.389 0.389 
+1.000 0.000 1.222 1.167 0.444 0.167 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
@@ -132,7 +130,7 @@ $objbound
 > if (require(Rmosek)){
 +   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
 +     ## mosek with several steps of optimization also of non-zero A-values
-+     aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=5,maxtime=100,
++     aus <- mosek_MIParray(nruns,nlev, resolution=2, kmax=4,maxtime=100,
 +                           mosek.params = list(dparam=list(LOWER_OBJ_CUT = 0.5,
 +                                                           MIO_TOL_ABS_GAP = 0.2, INTPNT_CO_TOL_PFEAS = 1e-05,
 +                                                           INTPNT_CO_TOL_INFEAS = 1e-07), iparam=list(LOG=0)))
@@ -145,28 +143,47 @@ Acquiring MOSEK environment
     0     1     2     3     4     5 
 1.000 0.000 1.111 0.944 0.889 0.056 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 4
 === GWLP after optimizing A4 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 5
-=== GWLP after optimizing A5 ===
-    0     1     2     3     4     5 
-1.000 0.000 0.000 1.778 1.000 0.222 
-=================================
 Releasing MOSEK environment
-NULL
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$reso
+[1] 3
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "mosek"
+
+$conecur
+[1] TRUE
+
+$stati
+            A1to1                A2                A3                A4 
+"INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" "INTEGER_OPTIMAL" 
+
+$objval
+[1] 144
+
+$objbound
+[1] 144
+
 > 
 > if (require(Rmosek)){
 +   if (packageVersion("Rmosek") >= "8.0.69" && Rmosek::mosek_version()>="8.1.0.23"){
@@ -210,12 +227,10 @@ Acquiring MOSEK environment
     0     1     2     3     4     5 
 1.000 0.000 1.111 0.944 0.889 0.056 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
@@ -294,8 +309,6 @@ Loading required package: gurobi
 Loading required package: slam
 Error in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)) : 
   improvement unnecessary, already optimal
-In addition: Warning message:
-package 'gurobi' was built under R version 3.5.0 
 [1] "Error in gurobi_MIPcontinue(aus, improve = TRUE, gurobi.params = list(OutputFlag = 0)) : \n  improvement unnecessary, already optimal\n"
 attr(,"class")
 [1] "try-error"
@@ -345,7 +358,6 @@ no violation of necessary criteria  for strength  2  was found
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =======================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
@@ -411,9 +423,8 @@ $objbound
 + }
 === GWLP after minimizing A1 ==========
     0     1     2     3     4     5 
-1.000 0.000 1.389 0.944 0.500 0.167 
+1.000 0.000 1.556 0.667 0.556 0.222 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
@@ -472,7 +483,7 @@ $objbound
 > 
 > ## gurobi with several steps of optimization also with non-zero A-values
 > if (require(gurobi)){
-+   aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=5,maxtime=100,
++   aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=4,maxtime=100,
 +                          gurobi.params = list(OutputFlag=0))
 +   MIPinfo <- attr(aus, "MIPinfo")
 +   print(MIPinfo$info[which(!names(MIPinfo$info)=="timelinear")])  ## stable output
@@ -480,29 +491,71 @@ $objbound
 no violation of necessary criteria  for strength  1  was found
 === GWLP after enforcing resolution ===
     0     1     2     3     4     5 
-1.000 0.000 1.111 1.278 0.556 0.056 
+1.000 0.000 1.222 1.500 0.222 0.056 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 4
 === GWLP after optimizing A4 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 5
-=== GWLP after optimizing A5 ===
-    0     1     2     3     4     5 
-1.000 0.000 0.000 1.778 1.000 0.222 
-=================================
-NULL
+$nruns
+[1] 12
+
+$nlev
+[1] 2 2 3 2 2
+
+$reso
+[1] 3
+
+$last.k
+[1] 4
+
+$optimizer
+[1] "gurobi"
+
+$conecur
+[1] TRUE
+
+$params
+$params$OutputFlag
+[1] 0
+
+$params$BestObjStop
+[1] 0.5
+
+$params$TimeLimit
+[1] 100
+
+$params$Threads
+[1] 2
+
+$params$MIQCPMethod
+[1] 0
+
+$params$Heuristics
+[1] 0.5
+
+$params$MIPFocus
+[1] 1
+
+
+$stati
+    A1to1        A2        A3        A4 
+"OPTIMAL" "OPTIMAL" "OPTIMAL" "OPTIMAL" 
+
+$objval
+[1] 144
+
+$objbound
+[1] 144
+
 > ## gurobi with resolution = 2 and kmax>resolution
 > if (require(gurobi)){
 +   aus <- gurobi_MIParray(nruns,nlev, resolution=2, kmax=3,maxtime=100,
@@ -542,14 +595,12 @@ NULL
 no violation of necessary criteria  for strength  1  was found
 === GWLP after enforcing resolution ===
     0     1     2     3     4     5 
-1.000 0.000 1.111 1.278 0.556 0.056 
+1.000 0.000 1.222 1.500 0.222 0.056 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
 =================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.000 1.778 1.000 0.222 
@@ -760,12 +811,10 @@ Acquiring MOSEK environment
     0     1     2     3     4     5 
 1.000 0.000 2.000 2.889 1.889 0.222 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.667 5.333 1.000 0.000 
 =================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.667 5.333 1.000 0.000 
@@ -881,14 +930,12 @@ $objval
 no violation of necessary criteria  for strength  1  was found
 === GWLP after enforcing resolution ===
     0     1     2     3     4     5 
-1.000 0.000 2.667 2.222 1.222 0.889 
+1.000 0.000 3.556 2.000 1.222 0.222 
 =======================================
-[1] 2
 === GWLP after optimizing A2 ===
     0     1     2     3     4     5 
 1.000 0.000 0.667 5.333 1.000 0.000 
 =================================
-[1] 3
 === GWLP after optimizing A3 ===
     0     1     2     3     4     5 
 1.000 0.000 0.667 5.333 1.000 0.000 
@@ -1050,4 +1097,4 @@ $objval
 > 
 > proc.time()
    user  system elapsed 
- 136.95    3.89   75.87 
+ 149.21    9.12   82.51 

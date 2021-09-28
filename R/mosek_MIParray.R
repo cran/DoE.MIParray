@@ -1,6 +1,6 @@
 mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2),
               distinct=TRUE, detailed=0,
-              start=NULL, forced=NULL, maxtime=Inf, nthread=2,
+              start=NULL, forced=NULL, find.only=FALSE, maxtime=Inf, nthread=2,
               mosek.opts=list(verbose=10, soldetail=1),
               mosek.params=list(dparam=list(LOWER_OBJ_CUT=0.5, MIO_TOL_ABS_GAP = 0.2,
                       INTPNT_CO_TOL_PFEAS = 1e-05, INTPNT_CO_TOL_INFEAS = 1e-07),
@@ -13,8 +13,6 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
 
   ## the function ensures the requested resolution and throws an error, if that is not possible
   ## it is in principle possible to interrupt the process and keep the result, but unstable sitautions may occur
-  #kmax <- 3
-  #resolution <- 3
 
   ## a recommendation from Romain Francois in his blog
   h <- function(w)
@@ -49,6 +47,11 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
   if (kmax < 2) stop("kmax must be at least 2")
   if (kmax > nfac) stop("kmax must not be larger than the number of factors")
   if (kmax < resolution) stop("kmax must not be smaller than the resolution")
+  ## added check July 2021
+  if (kmax == nfac && resolution < nfac) stop("kmax must not be larger than ", nfac - 1, ", ",
+               "because the last element A", nfac, " of the GWLP ",
+               " is a consequence of earlier elements.")
+
   strength <- resolution - 1
   if (!is.logical(distinct)) stop("distinct must be logical")
     if (distinct && nruns>prod(nlev)) stop("too many runs for design with distinct runs")
@@ -60,17 +63,20 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
     if (!all(start>=0)) stop("start must have non-negative elements")
     if (is.matrix(start)){
       if (!all(dim(start)==c(nruns, nfac))) stop("matrix start has wrong dimensions")
-      if (!all(DoE.base:::levels.no(start)==nlev)) stop("start and nlevels do not match")
+      if (!all(levels.no(start)==nlev)) stop("start and nlevels do not match")
       for (i in 1:length(nlev)) if (length(setdiff(start[,i],1:nlev[i]))>0)
         stop("invalid entries in column ", i, " of matrix start")
       start <- dToCount(start-1)
     }
     if (!length(start)==prod(nlev)) stop("vector start has wrong length")
     if (!sum(start)==nruns) stop("vector start is incompatible with nruns")
-    if (!round(DoE.base::GWLP(countToDmixed(nlev, start), kmax=strength), 8)[strength+1]==0)
+    suppressWarnings({
+      if (!round(DoE.base::GWLP(countToDmixed(nlev, start), kmax=strength), 8)[strength+1]==0)
       stop("resolution of start array too low")
+    })
     if (distinct && !all(start %in% c(0,1)))
-      stop("start array does comply with option distinct")
+      stop("start array does not comply with option distinct")
+      ## fixed text in May 2021, "not" was missing
   }
   if (!is.null(forced)){
     if (strength==0) stop("forcing runs requires resolution > 1")
@@ -80,7 +86,7 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
     if (is.matrix(forced)){
       if (!ncol(forced)==nfac) stop("matrix forced has wrong number of columns")
       if (nrow(forced)>=nruns) stop("matrix forced has too many rows")
-      if (!all(DoE.base:::levels.no(forced)==nlev)) stop("forced and nlevels do not match")
+      if (!all(levels.no(forced)<=nlev)) stop("forced and nlevels do not match")
       for (i in 1:length(nlev)) if (length(setdiff(forced[,i],1:nlev[i]))>0)
         stop("invalid entries in column ", i, " of matrix forced")
       forced <- dToCount(forced-1)
@@ -88,7 +94,8 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
     if (!length(forced)==prod(nlev)) stop("vector forced has wrong length")
     if (!sum(forced)<nruns) stop("vector forced fixes all runs", "use start for a start array")
     if (distinct && !all(forced %in% c(0,1)))
-      stop("forced array does comply with option distinct")
+      stop("forced array does not comply with option distinct")
+      ## fixed text in May 2021, "not" was missing
   }
 
   if (!is.list(mosek.opts)) stop("mosek.opts must be a named list")
@@ -132,7 +139,7 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
   df1 <- nlev-1
   D <- ff(nlev)
   df <- 1
-  for (j in 1:nfac) df <- c(df,sum(apply(matrix(df1[DoE.base:::nchoosek(nfac,j)],nrow=j),2,prod)))
+  for (j in 1:nfac) df <- c(df,sum(apply(matrix(df1[nchoosek(nfac,j)],nrow=j),2,prod)))
   dfweg <- cumsum(df)
   Dfac <- as.data.frame(D)
   for (j in 1:ncol(Dfac)){
@@ -238,6 +245,13 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
       opt <- sl$sol$int$xx     ## either A1 minimized or strength enforced
       vcur <- round(opt[1:N])%*%Hs[[max(1,strength)]]%*%round(opt[1:N])
            ## first optimum, likely 0
+      ## July 2021
+      stop.initial.optimal <- FALSE
+      vreso <- round(opt[1:N])%*%Hs[[resolution]]%*%round(opt[1:N])  ## for checking optimality
+      if (vreso <  sum(lowerbounds(nruns, nlev, resolution)) + 0.5 && kmax <= resolution){
+           find.only <- TRUE
+           stop.initial.optimal <- TRUE
+      }
     }
   vhistory <- list(objective=vcur, counts=cbind(round(opt[1:N])))
   nvar <- ncol(qco1$A)
@@ -247,19 +261,21 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
     if (is.null(start)) cat("=== GWLP after enforcing resolution ===\n")
     else cat("=== GWLP of start array ===\n")
   }
-  print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+  suppressWarnings({
+    print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+  })
   cat("=======================================\n")
 
   ## initial step completed
 
   ## loop over further steps
   from <- resolution
+  if (find.only) kmax <- resolution
   if (strength==0) from <- 2
   if (from <= kmax ){
     rem <- 0  ## initialize rem
     #for kmax==1 and strength==0, optimization is already finished
   for (kk in from:kmax){
-    print(kk)
     ## remove previous cone constraint in case of previous vcur = 0
     if (vcur==0){
       qco1 <- mosek_modelLastQuadconToLinear(qco1)   ## should not change initial model,
@@ -286,42 +302,66 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
     ## now extend by current quadratic objective
     ## df(kk+1) + 2 additional variables
     qco1 <- mosek_modelAddLinear(qco1, Us[[kk]])
+
     qco1 <- mosek_modelAddConeQobj(qco1, df[kk+1])
+
     if (rem > 0) sl$sol$int$xx <- sl$sol$int$xx[1:(length(sl$sol$int$xx)-rem)]
     rem <- 0  ## reset
     qco1 <- mosek_modelAddStart(qco1, sl$sol, add=Hs[[kk]])
+
+
          ## extend dimensions of sol object for new cone,
          ## including the current value of the (to be minimized) objective
     nvar <- as.integer(ncol(qco1$A))   #update nvar
 
     probs[[kk]] <- qco1
     #mosek_rsave(qco1, sl)
+
+    ## July 2021
+    if (find.only){
+      sl <- qco1
+      ## sl$sol$int$xx is the starting value
+      ## sl$sol$int$solsta is the status
+      if (!stop.initial.optimal) sl$sol$int$solsta <- "UNKNOWN" else
+        sl$sol$int$solsta <- "INTEGER_OPTIMAL"
+      sl$sol$int$pobjval <- round(opt[1:N])%*%Hs[[kk]]%*%round(opt[1:N])
+      sl$sol$int$pobjbound <- 0
+
+      sols[[kk]] <- sl
+    }
+    else{
     hilf <- qco1$info
     qco1$info <- NULL
     if (kk==hilf$reso){
       ## use updated resolution, if zeroes occurred
       hilf2 <- qco1$dparam
-      bound <- sum(DoE.base:::lowerbounds(nruns, nlev, kk)) + 0.5
+      bound <- sum(lowerbounds(nruns, nlev, kk)) + 0.5
       qco1$dparam$LOWER_OBJ_CUT <- max(qco1$dparam$LOWER_OBJ_CUT, bound)
     }
+    else bound <- 0.5   ## July 2021
     withCallingHandlers(
       {sl <- Rmosek::mosek(qco1, opts=opts)},
     warning = h )
-    qco1$info <- hilf 
+    qco1$info <- hilf
     if (kk==hilf$reso){
       qco1$dparam <- hilf2 ## LOWER_OBJ_CUT is set to the value of the call again
-      if (!sl$sol$int$solsta == "INTEGER_OPTIMAL" && sl$sol$int$pobjval <= bound)
+      if (sl$sol$int$pobjval <= bound)
         sl$sol$int$solsta <- "INTEGER_OPTIMAL"
           ## better use a different word for distinguishing from Mosek-confirmed?
     }
     sols[[kk]] <- sl
+    }
     opt <- sl$sol$int$xx         ## optimized for A_kk
     vcur <- round(opt[1:N])%*%Hs[[kk]]%*%round(opt[1:N])  ## A_kk=vcur/nruns^2
     vhistory$objective <- c(vhistory$objective, vcur)     ## can eventually disappear
     vhistory$counts <- cbind(vhistory$counts, opt[1:N])   ## can eventually disappear
-    cat(paste("=== GWLP after optimizing A",kk," ===\n",sep=""))
-    print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+    if (!find.only){
+      cat(paste("=== GWLP after optimizing A",kk," ===\n",sep=""))
+      suppressWarnings({
+        print(round(DoE.base::GWLP(countToDmixed(nlev,round(opt[1:N]))),3))
+      })
           cat("=================================\n")
+    }
   }
   }
   feld <- countToDmixed(nlev, round(opt[1:N])) + 1
@@ -345,7 +385,12 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
   status <- lapply(sols, function(obj) obj$sol$int$solsta)  ## list
   names(status)[1] <- paste("A1to",strength,sep="")
   namdetail <- names(status)
-  names(status)[resolution:kmax] <- paste("A",resolution:kmax,sep="")
+
+  ## check whether special treatment for k=1 is needed
+  if (find.only)
+    names(status)[resolution] <- paste0("A", resolution)
+  else
+    names(status)[resolution:kmax] <- paste("A",resolution:kmax,sep="")
   status <- unlist(status[sapply(status, function(obj) !is.null(obj))]) ## vector
   laststatus <- status[length(status)]
 
@@ -362,13 +407,18 @@ mosek_MIParray <- function(nruns, nlevels, resolution=3, kmax=max(resolution, 2)
 
   if (kmax < nfac || !laststatus=="INTEGER_OPTIMAL")
        attr(feld, "MIPinfo") <- ausqco1
+  else
+       attr(feld, "MIPinfo") <- ausqco1$info ## moved here May 2021
+
   if (length(setdiff(status, c("INTEGER_OPTIMAL"))) > 0){
     if (laststatus == "INTEGER_OPTIMAL"){
-      warning("Even though the last step yielded a confirmed optimum, ", "a previous step did not.")
-    attr(feld, "MIPinfo") <- ausqco1$info
+      warning("Even though the last step yielded a confirmed optimum, ",
+              "a previous step did not.")
     }
   }
 
+  if (find.only) if (stop.initial.optimal) message(paste0("The initial enforcement of resolution ",
+                                           "yielded the optimal A", resolution, "."))
 
   if (detailed) {
     names(probs) <- namdetail
