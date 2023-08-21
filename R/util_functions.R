@@ -114,6 +114,8 @@ levels.no <- function(xx)
   # changed table to unique, much faster UG 10 May 13
   # added factor distinction, in order to account for
   #     imbalance by missing levels (UG 03 April 17)
+  if ("no" %in% class(xx)) 
+        stop("DoE.MIParray:::levels.no is not a method for the generic base::levels")  
   ff <- FALSE
   if (is.data.frame(xx)){
     if (any(ff <- sapply(xx, is.factor)))

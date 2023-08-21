@@ -1,4 +1,5 @@
 \name{DoE.MIParray-package}
+\alias{DoE.MIParray-package}
 \alias{DoE.MIParray}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{

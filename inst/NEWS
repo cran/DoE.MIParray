@@ -1,5 +1,12 @@
 Changes to package DoE.MIParray
 
+Version 1.0-1, August 2023
+- added an alias DoE.MIParray-package, as requested by CRAN team
+- removed unnecessary arguments from internal function documentation
+- added error message for the unlikely case that a user calls the internal 
+  function levels.no with the intention of calling base::levels 
+  on an object of class no
+
 Version 1.0, September 2021
 - added an argument find.only (default FALSE for backward compatibility) to
   mosek_MIParray and gurobi_MIParray; find.only=TRUE permits to search

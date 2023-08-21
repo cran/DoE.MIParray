@@ -70,15 +70,6 @@ name to be written into the name field of the mps file
   \item{commentline}{
 comment to be written directly underneath the name (comments have to start with a *)
 }
-  \item{prefix}{
-file name prefix to be supplemented with a number and the .mps suffix later. In addition, a further file with a different suffix may be created (see details).
-}
-  \item{qcolist}{
-list of ILP objects in Mosek notation (as e.g. produced by function \code{create_ILP_list})
-}
-  \item{toc}{
-logical (default TRUE) that indicates whether a table of content should be produced (txt file)
-  }
 }
 \details{
 The functions do \emph{not} do any problem solving, they serve the sole purpose of exporting problems so that they can be addressed by solvers other than Mosek or Gurobi. The target solver must be able to process the MPS format.
