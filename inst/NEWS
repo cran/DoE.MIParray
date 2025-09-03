@@ -1,10 +1,15 @@
 Changes to package DoE.MIParray
 
+Version 1.0-2, September 2025
+- added an authors@R field to the description
+- added package anchors to DoE.base references
+- updated gurobi URLs
+
 Version 1.0-1, August 2023
 - added an alias DoE.MIParray-package, as requested by CRAN team
 - removed unnecessary arguments from internal function documentation
-- added error message for the unlikely case that a user calls the internal 
-  function levels.no with the intention of calling base::levels 
+- added error message for the unlikely case that a user calls the internal
+  function levels.no with the intention of calling base::levels
   on an object of class no
 
 Version 1.0, September 2021

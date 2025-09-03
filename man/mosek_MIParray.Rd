@@ -142,7 +142,7 @@ Groemping, U. and Fontana R. (2019). An Algorithm for Generating Good Mixed Leve
 
 Groemping, U. (2020). DoE.MIParray: an R package for algorithmic creation of orthogonal arrays. \emph{Journal of Open Research Software}, \bold{8: 24}. DOI: https://doi.org/10.5334/jors.286
 
-Gurobi Optimization Inc. (2017). Gurobi Optimizer Reference Manual. \url{https://www.gurobi.com:443/documentation/}.
+Gurobi Optimization Inc. (2017). Gurobi Optimizer Reference Manual. \url{https://docs.gurobi.com/}.
 
 Mosek ApS (2017a). MOSEK version w.x.y.z documentation. Accessible at: \url{https://www.mosek.com/documentation/}. This package has been developed using version 8.1.0.23 (accessed August 29 2017).
 

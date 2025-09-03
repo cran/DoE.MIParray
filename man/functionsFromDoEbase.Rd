@@ -14,7 +14,7 @@
 Functions from package DoE.base
 }
 \description{
-These functions from DoE.base are exported from DoE.MIParray, 
+These functions from DoE.base are exported from DoE.MIParray,
 because they are especially important for its use.
 }
 \usage{
@@ -28,35 +28,35 @@ contr.XuWu(n, contrasts=TRUE)
 GWLP(design, ...)
 SCFTs(design, digits = 3, all = TRUE, resk.only = TRUE, kmin = NULL, kmax = ncol(design),
    regcheck = FALSE, arft = TRUE, cancors = FALSE, with.blocks = FALSE)
-ICFTs(design, digits = 3, resk.only = TRUE, kmin = NULL, kmax = ncol(design), 
+ICFTs(design, digits = 3, resk.only = TRUE, kmin = NULL, kmax = ncol(design),
    detail = FALSE, with.blocks = FALSE, conc = TRUE)
 }
 \arguments{
-  \item{nruns}{see \pkg{\link{DoE.base}}}
-  \item{nlevels}{see \pkg{\link{DoE.base}}}
-  \item{strength}{see \pkg{\link{DoE.base}}}
-  \item{verbose}{see \pkg{\link{DoE.base}}}
-  \item{returnbound}{see \pkg{\link{DoE.base}}}
-  \item{R}{see \pkg{\link{DoE.base}}}
-  \item{crit}{see \pkg{\link{DoE.base}}}
-  \item{design}{see \pkg{\link{DoE.base}}}
-  \item{with.blocks}{see \pkg{\link{DoE.base}}}
-  \item{J}{see \pkg{\link{DoE.base}}}
-  \item{rela}{see \pkg{\link{DoE.base}}}
-  \item{n}{see \pkg{\link{DoE.base}}}
-  \item{contrasts}{see \pkg{\link{DoE.base}}}
-  \item{separate}{see \pkg{\link{DoE.base}}}
-  \item{digits}{see \pkg{\link{DoE.base}}}
-  \item{all}{see \pkg{\link{DoE.base}}}
-  \item{resk.only}{see \pkg{\link{DoE.base}}}
-  \item{kmin}{see \pkg{\link{DoE.base}}}
-  \item{kmax}{see \pkg{\link{DoE.base}}}
-  \item{regcheck}{see \pkg{\link{DoE.base}}}
-  \item{arft}{see \pkg{\link{DoE.base}}}
-  \item{cancors}{see \pkg{\link{DoE.base}}}
-  \item{detail}{see \pkg{\link{DoE.base}}}
-  \item{conc}{see \pkg{\link{DoE.base}}}
-  \item{...}{see \pkg{\link{DoE.base}}}
+  \item{nruns}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{nlevels}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{strength}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{verbose}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{returnbound}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{R}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{crit}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{design}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{with.blocks}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{J}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{rela}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{n}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{contrasts}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{separate}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{digits}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{all}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{resk.only}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{kmin}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{kmax}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{regcheck}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{arft}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{cancors}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{detail}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{conc}{see \pkg{\link[DoE.base]{DoE.base}}}
+  \item{...}{see \pkg{\link[DoE.base]{DoE.base}}}
 }
 \details{
 for documentation of the functions, see the links under "See also"
@@ -72,9 +72,9 @@ Ulrike Groemping
 }
 
 \seealso{
-See also \code{\link[DoE.base]{oa_feasible}}, \code{\link[DoE.base]{lowerbound_AR}}, 
-\code{\link[DoE.base]{length2}}, \code{\link[DoE.base]{length3}}, \code{\link[DoE.base]{length4}}, 
-\code{\link[DoE.base]{length5}}, \code{\link[DoE.base]{GWLP}}, \code{\link[DoE.base]{SCFTs}}, 
+See also \code{\link[DoE.base]{oa_feasible}}, \code{\link[DoE.base]{lowerbound_AR}},
+\code{\link[DoE.base]{length2}}, \code{\link[DoE.base]{length3}}, \code{\link[DoE.base]{length4}},
+\code{\link[DoE.base]{length5}}, \code{\link[DoE.base]{GWLP}}, \code{\link[DoE.base]{SCFTs}},
 \code{\link[DoE.base]{ICFTs}}.
 }
 \examples{

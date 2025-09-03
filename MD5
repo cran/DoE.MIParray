@@ -1,4 +1,4 @@
-a1172c5ad812562efcae727ab5930603 *DESCRIPTION
+7ce10d4b8e7f2b6400d30138af02e54c *DESCRIPTION
 eea11fe124fd10ef32d304592c4c9648 *NAMESPACE
 312b0d26d2a9a190d7b475563918a14d *R/create_ILPlist.R
 125ab4b812ad98e0de9d0de911f8f38b *R/create_MIQP.R
@@ -16,7 +16,7 @@ f9cadf0ce0a62f7d16fceb4f2ab44a79 *R/utils_gurobi.R
 d32565253481464523fff60e0c5f72d9 *R/write_MPSILP.R
 eabb747e1bc0dbee6074586359dbe116 *R/write_MPSILPlist.R
 514d2e6ee1a1f30180df7ca8f635d65b *R/write_MPSMIQP.R
-2c0136a604b9c8e505fdc93b7c350281 *inst/NEWS
+6cf03a12663760a7dd725a7eb620b380 *inst/NEWS
 b737cb1a68293517ce90d4b1053b96fb *inst/testsWithGurobiAndMosek/testMPS.R
 e985777d769a2564516a7f7d91badcf5 *inst/testsWithGurobiAndMosek/testMPS.Rout.save
 471f51b3f4c49282cd4408c68df5efc1 *inst/testsWithGurobiAndMosek/testcombis.R
@@ -25,12 +25,12 @@ c502b019e346c16026b8b99402a9ecb3 *inst/testsWithGurobiAndMosek/testfindonly.R
 fe55813f9bbadf7efb4604aace944d07 *inst/testsWithGurobiAndMosek/testfindonly.Rout.save
 dbdb4c256479c6ca1018cbc58ce0efb8 *inst/testsWithGurobiAndMosek/teststartforced.R
 3ea5e9e901c64e11a8534a126ced1589 *inst/testsWithGurobiAndMosek/teststartforced.Rout.save
-767651301b915e5fdbe30a94fb529ea2 *man/DoE.MIParray-package.Rd
+7319a8e3ab3dc345aae9c703e55b6906 *man/DoE.MIParray-package.Rd
 6087c647840401cd8f0934ec48690a6e *man/create_MIQP.Rd
 8c1c660e37d209999b8f53d9bfcb6a08 *man/dToCount.Rd
-5b9f0007af4d81c6dffbb147fe8bbbbf *man/functionsFromDoEbase.Rd
+0c0a86e6b6f1eceee044b37d34146412 *man/functionsFromDoEbase.Rd
 ccfaf5d18095c4570ae521451bb6f038 *man/mosek2gurobi.Rd
-30aa9da8af101d54bdaab58ef7424cea *man/mosek_MIParray.Rd
+f4c7d4d897deb31d6e4d19797dc88bfa *man/mosek_MIParray.Rd
 80b8876c2d8d9e0ed7d2c4e63c1bacda *man/mosek_MIPcontinue.Rd
 4f1d361087b03189535d0f98dbca6cbe *man/mosek_MIPsearch.Rd
 38620ec568e9783b0cc3d795c0abc98a *man/print.oa.Rd
